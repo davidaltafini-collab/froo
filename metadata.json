@@ -1,0 +1,6 @@
+{
+  "name": "FreshLeaf Rewards",
+  "description": "A clean, modern loyalty app for a supermarket franchise focusing on a leaf green and white color palette.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

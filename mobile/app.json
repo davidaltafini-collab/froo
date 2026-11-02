@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Froo Rewards",
+    "slug": "froo-rewards",
+    "scheme": "froorewards",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#006320",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Froo uses the camera to scan barcodes at checkout and to redeem your rewards."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Froo uses your location to show which nearby stores have your offers in stock.",
+          "locationWhenInUsePermission": "Froo uses your location to show which nearby stores have your offers in stock."
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Froo uses motion to tilt your loyalty card as you move your phone."
+        }
+      ]
+    ]
+  }
+}

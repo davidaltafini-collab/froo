@@ -1,0 +1,41 @@
+node_modules/
+build/
+dist/
+coverage/
+.design-editor/backups/
+design-exports/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Not part of the app: old captures, editor backups, scratch scripts
+/.design-editor/
+visual-parity/**
+!visual-parity/**/
+!visual-parity/**/*.md
+mobile/visual-parity/
+assets/games/froomerge/ChatGPT Image*
+scripts/_tmp-*
+scripts/capture-*.mjs
+scripts/inspect-*.mjs
+scripts/compare-game-parity.mjs
+scripts/create-video-contact-sheet.mjs
+scripts/create-visual-comparison.mjs
+# Design-editor asset versions: keep only the ones the code imports
+assets/.design-editor/*
+!assets/.design-editor/chatgpt-image-aug-1-2026-01-04-04-am-4-ms9liijq.png
+!assets/.design-editor/chatgpt-image-aug-1-2026-01-04-04-am-4-msa8x9rm.png
+!assets/.design-editor/froggyshoppinglist-ms9kkuzc.png
+!assets/.design-editor/froogames-bg-ms98v2l5.svg
+!assets/.design-editor/froogames-bg-ms9lhkkc.svg
+!assets/.design-editor/froogames-ms98q703.svg
+!assets/.design-editor/froogygamer-ms9hn4c4.png
+!assets/.design-editor/froogygamer-ms9ktk1c.png
+!assets/.design-editor/froogygamer-ms9ku1rg.png
+!assets/.design-editor/froomergeicon-ms9kqaxv.png
+!assets/.design-editor/froomergeicon-msa6c6ax.png
+!assets/.design-editor/froomergeicon-msa8xx8x.png
+!assets/.design-editor/mascott-ms995uzq.png
+!assets/.design-editor/mascottfarapicioare-ms99b4nj.png
+!assets/.design-editor/mascottpicirotaiat-ms993n5n.png
