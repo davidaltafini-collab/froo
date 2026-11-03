@@ -25,7 +25,12 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Froo Rewards",
+      "shortName": "Froo",
+      "themeColor": "#006320",
+      "backgroundColor": "#ffffff",
+      "output": "single"
     },
     "plugins": [
       "expo-font",

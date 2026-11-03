@@ -9,6 +9,25 @@ scripts/  build pentru jocurile incluse în aplicația mobilă
 docs/     ghiduri de arhitectură și migrare
 ```
 
+## Linkuri publice
+
+- **Web (orice telefon, fără instalare):** https://froo-rewards.expo.app
+- **Proiect Expo / build-uri:** https://expo.dev/accounts/altmar-group/projects/froo-rewards
+
+Actualizare versiune web:
+
+```sh
+cd mobile
+npx expo export -p web && npx eas-cli deploy --prod
+```
+
+APK Android public (link de instalare pe expo.dev):
+
+```sh
+cd mobile
+npx eas-cli build -p android --profile preview
+```
+
 ## Aplicația mobilă
 
 ```sh
