@@ -47,6 +47,12 @@
         }
       ],
       "./plugins/withQuotedBundleScript"
-    ]
+    ],
+    "owner": "altmar-group",
+    "extra": {
+      "eas": {
+        "projectId": "bdb61cf5-78cb-4e2f-991c-3cfd11cb1692"
+      }
+    }
   }
 }
