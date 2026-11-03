@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react-native';
+import type { ImageRef } from '../theme/image';
 
 export type TabKey = 'home' | 'coupons' | 'list' | 'stores';
 
@@ -18,7 +19,7 @@ export interface Offer {
   discount: string;
   icon: LucideIcon;
   color: string;
-  image?: string;
+  image?: ImageRef;
 }
 
 export interface Transaction {
@@ -46,7 +47,7 @@ export interface CatalogueCategory {
 export interface RewardItem {
   name: string;
   cost: number;
-  image: string;
+  image: ImageRef;
 }
 
 export interface RedeemedReward {
@@ -65,7 +66,7 @@ export interface ExtractionPrize {
   rarity: PrizeRarity;
   weight: number;
   kind: 'product' | 'points';
-  image?: string;
+  image?: ImageRef;
   pointsValue?: number;
 }
 

@@ -1,7 +1,26 @@
-import { Leaf, MapPin, Coffee, Tag } from 'lucide-react-native';
+import { Leaf, MapPin, Coffee, Tag, Utensils } from 'lucide-react-native';
 import type { Offer, Transaction, CatalogueCategory } from '../types';
+import { BISTRO } from './bistro';
 
 export const OFFERS: Offer[] = [
+  {
+    id: 21,
+    title: 'Froo Bistro',
+    desc: 'Hot Dog + Fries for 15 lei',
+    discount: 'COMBO',
+    icon: Utensils,
+    color: 'bg-orange-100 text-orange-600',
+    image: BISTRO.hotdog.image,
+  },
+  {
+    id: 22,
+    title: 'Froo Bistro',
+    desc: '2nd Chicken Panini at half price',
+    discount: '50% OFF',
+    icon: Utensils,
+    color: 'bg-orange-100 text-orange-600',
+    image: BISTRO.chickenPanini.image,
+  },
   {
     id: 1,
     title: 'Dairy & Eggs',

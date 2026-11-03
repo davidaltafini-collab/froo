@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutChangeEvent, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { LayoutChangeEvent, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { Text } from '../components/Text';
 import { LinearGradient } from '../components/LinearGradient';
@@ -29,6 +29,8 @@ import {
 } from 'lucide-react-native';
 
 import { OFFERS, TRANSACTIONS } from '../data/mockData';
+import { BISTRO_FEATURED, bistroPoints, formatLei, type BistroItem } from '../data/bistro';
+import { elevation } from '../theme/elevation';
 import { ActionBtn } from '../components/SharedUI';
 import { AppPressable } from '../components/AppPressable';
 import { useAppContext } from '../context/AppContext';
@@ -167,6 +169,83 @@ function Particle({ onDone, designScale }: { onDone: () => void; designScale: nu
         +15
       </Text>
     </Animated.View>
+  );
+}
+
+function BistroCard({ item, s, onPress }: { item: BistroItem; s: number; onPress: () => void }) {
+  return (
+    <AppPressable
+      onPress={onPress}
+      className="bg-white"
+      style={[elevation.card, { width: 150 * s, borderRadius: 24 * s, padding: 10 * s }]}
+    >
+      <View
+        style={{
+          height: 104 * s,
+          borderRadius: 18 * s,
+          backgroundColor: '#fbf3e8',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <ExpoImage source={item.image} style={{ width: '92%', height: '92%' }} contentFit="contain" transition={0} />
+      </View>
+      <View style={{ paddingHorizontal: 4 * s, paddingTop: 10 * s, paddingBottom: 4 * s }}>
+        <Text className="font-bold text-slate-800" numberOfLines={1} style={{ fontSize: 14 * s, lineHeight: 18 * s }}>
+          {item.name}
+        </Text>
+        <Text className="text-slate-500" numberOfLines={1} style={{ fontSize: 11 * s, lineHeight: 15 * s, marginTop: 2 * s }}>
+          {item.tagline}
+        </Text>
+        <View className="flex-row items-center justify-between" style={{ marginTop: 10 * s }}>
+          <Text className="font-black text-slate-900" style={{ fontSize: 13 * s, lineHeight: 17 * s }}>
+            {formatLei(item.price)}
+          </Text>
+          <View className="bg-green-50" style={{ paddingHorizontal: 6 * s, paddingVertical: 2 * s, borderRadius: 6 * s }}>
+            <Text className="font-bold text-green-700" style={{ fontSize: 10 * s, lineHeight: 14 * s }}>
+              +{bistroPoints(item)} pts
+            </Text>
+          </View>
+        </View>
+      </View>
+    </AppPressable>
+  );
+}
+
+/** Horizontally scrolling Froo Bistro menu, using the bundled product photos. */
+function BistroCarousel({ designScale: s, onOpenOffers }: { designScale: number; onOpenOffers: () => void }) {
+  return (
+    <View style={{ marginTop: 32 * s }}>
+      <View className="flex-row justify-between items-end" style={{ paddingHorizontal: 24 * s, marginBottom: 14 * s }}>
+        <View>
+          <Text className="font-bold text-slate-800" style={{ fontSize: 18 * s, lineHeight: 24 * s }}>
+            Froo Bistro
+          </Text>
+          <Text className="text-slate-500" style={{ fontSize: 12 * s, lineHeight: 16 * s, marginTop: 2 * s }}>
+            Hot and fresh, in every froo store
+          </Text>
+        </View>
+        <AppPressable onPress={onOpenOffers} hitSlop={8}>
+          <Text className="text-green-600 underline font-semibold" style={{ fontSize: 12 * s, lineHeight: 16 * s }}>
+            Bistro deals
+          </Text>
+        </AppPressable>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        snapToInterval={162 * s}
+        // Vertical padding leaves room for the card shadows, which a ScrollView would clip.
+        contentContainerStyle={{ paddingHorizontal: 24 * s, paddingVertical: 12 * s, gap: 12 * s }}
+        style={{ marginVertical: -12 * s }}
+      >
+        {BISTRO_FEATURED.map((item) => (
+          <BistroCard key={item.id} item={item} s={s} onPress={onOpenOffers} />
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -730,6 +809,9 @@ export function DashboardView() {
         </AppPressable>
       </View>
 
+      {/* Froo Bistro */}
+      <BistroCarousel designScale={designScale} onOpenOffers={() => setActiveTab('coupons')} />
+
       {/* Weekly Offers */}
       <View style={{ paddingHorizontal: 24 * designScale, marginTop: 32 * designScale }}>
         <View
@@ -753,7 +835,7 @@ export function DashboardView() {
         </View>
 
         <View className="flex-row flex-wrap" style={{ gap: 16 * designScale }}>
-          {OFFERS.slice(0, 2).map((offer, i) => (
+          {OFFERS.filter((offer) => offer.title !== 'Froo Bistro').slice(0, 2).map((offer, i) => (
             <View
               key={offer.id}
               style={{

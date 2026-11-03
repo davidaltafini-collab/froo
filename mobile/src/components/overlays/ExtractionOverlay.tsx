@@ -20,6 +20,7 @@ import type { ExtractionPrize } from '../../types';
 import { RARITY_COLORS, REEL_TARGET_INDEX, buildReel, pickWeightedPrize } from '../../data/extractionPrizes';
 import { useAppContext } from '../../context/AppContext';
 import { AppPressable } from '../AppPressable';
+import { imageSource, isCutout } from '../../theme/image';
 
 const CARD_W = 108;
 const CARD_H = 132;
@@ -66,7 +67,11 @@ function PrizeCard({ prize, size = 1 }: { prize: ExtractionPrize; size?: number 
       }}
     >
       {prize.kind === 'product' && prize.image ? (
-        <ExpoImage source={{ uri: prize.image }} style={{ width: '100%', height: '72%' }} contentFit="cover" />
+        <ExpoImage
+          source={imageSource(prize.image)}
+          style={{ width: '100%', height: '72%', backgroundColor: isCutout(prize.image) ? '#fbf3e8' : undefined }}
+          contentFit={isCutout(prize.image) ? 'contain' : 'cover'}
+        />
       ) : (
         <View style={{ width: '100%', height: '72%', alignItems: 'center', justifyContent: 'center', backgroundColor: `${color}1a` }}>
           <Sparkles size={30 * size} color={color} />

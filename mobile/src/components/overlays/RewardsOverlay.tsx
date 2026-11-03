@@ -11,35 +11,20 @@ import { AppPressable } from '../AppPressable';
 import { useHardwareBack } from '../../hooks/useHardwareBack';
 import type { RewardItem } from '../../types';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
+import { BISTRO, type BistroItem } from '../../data/bistro';
+import { imageSource, isCutout } from '../../theme/image';
 
 const TIERS = [1500, 3000, 4500, 6000];
 const TIER_STICKY_HEADER_INDICES = TIERS.map((_, index) => index * 2);
 
+const reward = (item: BistroItem, cost: number): RewardItem => ({ name: item.name, cost, image: item.image });
+
+// Froo Bistro menu, cheapest first. Photos are bundled, so the catalogue renders offline.
 const REWARDS: Record<number, RewardItem[]> = {
-  1500: [
-    { name: 'Fresh Bananas (1 kg)', cost: 1500, image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=400&q=80' },
-    { name: 'Organic Lemon', cost: 1500, image: 'https://images.unsplash.com/photo-1550828520-4cb496926fc9?w=400&q=80' },
-    { name: 'Spring Water', cost: 1500, image: 'https://images.unsplash.com/photo-1655079343782-f0fc4704753e?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Fresh Croissant', cost: 1500, image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=400' },
-  ],
-  3000: [
-    { name: 'Avocado (2-Pack)', cost: 3000, image: 'https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Strawberry Box', cost: 3000, image: 'https://images.unsplash.com/photo-1467825487722-2a7c4cd62e75?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Oat Milk (1L)', cost: 3000, image: 'https://images.unsplash.com/photo-1578767361597-216ad9280b77?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Artisan Sourdough', cost: 3000, image: 'https://images.unsplash.com/photo-1765227036124-f90781f04dd8?auto=format&fit=crop&q=80&w=400' },
-  ],
-  4500: [
-    { name: 'Organic Eggs', cost: 4500, image: 'https://images.unsplash.com/photo-1617440168937-c6497eaa8db5?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Cold Pressed Juice', cost: 4500, image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&q=80' },
-    { name: 'Ground Coffee', cost: 4500, image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&q=80&w=400' },
-    { name: 'Mixed Nuts', cost: 4500, image: 'https://images.unsplash.com/photo-1657986020391-732179775c66?auto=format&fit=crop&q=80&w=400' },
-  ],
-  6000: [
-    { name: 'Whole Chicken', cost: 6000, image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?w=400&q=80' },
-    { name: 'Cheese Board', cost: 6000, image: 'https://images.unsplash.com/photo-1631379578550-7038263db699?w=400&q=80' },
-    { name: 'Organic Olive Oil', cost: 6000, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80' },
-    { name: 'Acai Bowl', cost: 6000, image: 'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&q=80' },
-  ],
+  1500: [reward(BISTRO.fries, 1500), reward(BISTRO.hotdogWrap, 1500), reward(BISTRO.churros, 1500)],
+  3000: [reward(BISTRO.hotdog, 3000), reward(BISTRO.chickenPanini, 3000), reward(BISTRO.tenders, 3000)],
+  4500: [reward(BISTRO.flatbread, 4500), reward(BISTRO.chickenSandwich, 4500)],
+  6000: [reward(BISTRO.donerWrap, 6000), reward(BISTRO.crocantBox, 6000)],
 };
 
 export function RewardsOverlay({ onClose }: { onClose: () => void }) {
@@ -275,8 +260,10 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                     }}
                   >
                     <View
-                      className="bg-slate-100 relative"
+                      className="relative"
                       style={{
+                        // Warm plate behind the bistro cut-outs, like a product shot on a tray.
+                        backgroundColor: isCutout(item.image) ? '#fbf3e8' : '#f1f5f9',
                         width: 96 * designScale,
                         height: 96 * designScale,
                         borderRadius: 20 * designScale,
@@ -284,14 +271,15 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                       }}
                     >
                       <ExpoImage
-                        source={{ uri: item.image }}
+                        source={imageSource(item.image)}
                         style={{
                           width: '100%',
                           height: '100%',
                           borderRadius: 20 * designScale,
                           opacity: isLocked && !isRedeemed ? 0.7 : 1,
+                          transform: isCutout(item.image) ? [{ scale: 0.86 }] : undefined,
                         }}
-                        contentFit="cover"
+                        contentFit={isCutout(item.image) ? 'contain' : 'cover'}
                       />
                       {isLocked && !isRedeemed && (
                         <View

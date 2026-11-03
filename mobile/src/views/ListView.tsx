@@ -59,7 +59,6 @@ export function ListView() {
   const designScale = windowWidth / 425;
   const s = designScale;
   const shouldReduceMotion = useReducedMotion();
-  const [rootHeight, setRootHeight] = React.useState(780 * designScale);
   const [lists, setLists] = React.useState<Record<string, ShoppingListItem[]>>({
     personal: [
       { id: 1, text: 'Organic Bananas (Bunch)', checked: false, qty: 1 },
@@ -148,10 +147,6 @@ export function ListView() {
     <View
       className="relative"
       style={{ padding: 24 * s }}
-      onLayout={(event) => {
-        const nextHeight = event.nativeEvent.layout.height;
-        setRootHeight((currentHeight) => Math.abs(currentHeight - nextHeight) > 0.5 ? nextHeight : currentHeight);
-      }}
     >
       <View className="relative z-10">
         <View className="flex-row items-center justify-between" style={{ marginBottom: 24 * s }}>
@@ -515,10 +510,13 @@ export function ListView() {
         style={[
           {
             position: 'absolute',
-            top: rootHeight * 0.204,
+            // Fixed design units (the values the 425 x 849 reference resolves to with the initial
+            // list). These used to be percentages of this view's own height, which grows with every
+            // item — so adding, checking off or switching lists made the frog jump and resize.
+            top: 161 * s,
             left: 321.06 * s,
             width: 158.2 * s,
-            height: rootHeight * 0.215,
+            height: 170 * s,
             zIndex: 20,
           },
           mascotAnimatedStyle,

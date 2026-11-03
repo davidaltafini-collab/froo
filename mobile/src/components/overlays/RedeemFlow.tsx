@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat
 import { GestureDetector } from 'react-native-gesture-handler';
 import { Award } from 'lucide-react-native';
 import { AppPressable } from '../AppPressable';
+import { imageSource, isCutout } from '../../theme/image';
 import { BackdropBlur } from '../BackdropBlur';
 import type { RewardItem } from '../../types';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
@@ -103,13 +104,14 @@ export function RedeemFlow({ item, onConfirm, onCancel }: { item: RewardItem; us
             }}
           >
             <ExpoImage
-              source={{ uri: item.image }}
+              source={imageSource(item.image)}
               style={{
                 width: 128 * designScale,
                 height: 128 * designScale,
                 borderRadius: 16 * designScale,
+                backgroundColor: isCutout(item.image) ? '#fbf3e8' : undefined,
               }}
-              contentFit="cover"
+              contentFit={isCutout(item.image) ? 'contain' : 'cover'}
             />
           </View>
           <Text

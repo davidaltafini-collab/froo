@@ -7,6 +7,7 @@ import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { QrCode, Timer, X } from 'lucide-react-native';
 import { useAppContext } from '../../context/AppContext';
 import { AppPressable } from '../AppPressable';
+import { imageSource, isCutout } from '../../theme/image';
 
 export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
   const { width: windowWidth } = useWindowDimensions();
@@ -51,10 +52,14 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
           showsVerticalScrollIndicator={false}
         >
       <View
-        className="relative bg-slate-100"
-        style={{ height: 288 * designScale }}
+        className="relative"
+        style={{ height: 288 * designScale, backgroundColor: isCutout(item.image) ? '#fbf3e8' : '#f1f5f9' }}
       >
-        <ExpoImage source={{ uri: item.image }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        <ExpoImage
+          source={imageSource(item.image)}
+          style={{ width: '100%', height: '100%', transform: isCutout(item.image) ? [{ scale: 0.78 }, { translateY: -12 * designScale }] : undefined }}
+          contentFit={isCutout(item.image) ? 'contain' : 'cover'}
+        />
         <LinearGradient colors={['transparent', 'rgba(255,255,255,0.2)', 'white']} locations={[0, 0.5, 1]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} className="absolute inset-0" />
         <AppPressable
           onPress={onClose}

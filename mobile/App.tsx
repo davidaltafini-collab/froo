@@ -33,6 +33,7 @@ import {
 import { useAppFonts } from './src/theme/fonts';
 import { useHardwareBack } from './src/hooks/useHardwareBack';
 import { BackdropBlur } from './src/components/BackdropBlur';
+import { imageSource, isCutout } from './src/theme/image';
 import SarahAvatar from './assets/brand/avatar-sarah.svg';
 
 // Hold the native splash until Inter is registered. Without this the first frame renders in the
@@ -407,7 +408,7 @@ function AppShell() {
                 className="bg-white/95 rounded-2xl p-3 shadow-lg shadow-green-900/10 border border-green-200 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-3">
-                  <ExpoImage source={{ uri: reward.item.image }} style={{ width: 40, height: 40, borderRadius: 12 }} contentFit="cover" />
+                  <ExpoImage source={imageSource(reward.item.image)} style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: isCutout(reward.item.image) ? '#fbf3e8' : undefined }} contentFit={isCutout(reward.item.image) ? 'contain' : 'cover'} />
                   <View>
                     <Text className="font-bold text-slate-900 text-sm leading-tight">{reward.item.name}</Text>
                     <View className="flex-row items-center gap-1">

@@ -27,6 +27,7 @@ import Svg, {
 } from 'react-native-svg';
 import { ChevronRight, Coffee, Gift, X } from 'lucide-react-native';
 import { OFFERS } from '../data/mockData';
+import { imageSource, isCutout, type ImageRef } from '../theme/image';
 import { RARITY_COLORS } from '../data/extractionPrizes';
 import { useAppContext } from '../context/AppContext';
 import { AppPressable } from '../components/AppPressable';
@@ -57,7 +58,8 @@ const CORNER_PATH = [
   'Z',
 ].join(' ');
 
-function CouponImageCorner({ uri, id, designScale }: { uri: string; id: number | string; designScale: number }) {
+function CouponImageCorner({ image, id, designScale }: { image: ImageRef; id: number | string; designScale: number }) {
+  const cutout = isCutout(image);
   // Ids are referenced by `url(#…)` within this <Svg>; keying them per offer keeps sibling
   // cards from resolving each other's defs.
   const clipId = `couponClip-${id}`;
@@ -81,13 +83,29 @@ function CouponImageCorner({ uri, id, designScale }: { uri: string; id: number |
           <Stop offset="1" stopColor="#ffffff" stopOpacity={0.2} />
         </SvgLinearGradient>
       </Defs>
-      <SvgImage
-        href={{ uri }}
-        width={CORNER_W}
-        height={CORNER_H}
-        preserveAspectRatio="xMidYMid slice"
-        clipPath={`url(#${clipId})`}
-      />
+      {cutout ? (
+        // Bistro photos are transparent cut-outs: sit them on a warm plate instead of cropping.
+        <>
+          <Path d={CORNER_PATH} fill="#fbf3e8" />
+          <SvgImage
+            href={image}
+            x={CORNER_W * 0.2}
+            y={6}
+            width={CORNER_W * 0.78}
+            height={CORNER_H - 12}
+            preserveAspectRatio="xMidYMid meet"
+            clipPath={`url(#${clipId})`}
+          />
+        </>
+      ) : (
+        <SvgImage
+          href={imageSource(image)}
+          width={CORNER_W}
+          height={CORNER_H}
+          preserveAspectRatio="xMidYMid slice"
+          clipPath={`url(#${clipId})`}
+        />
+      )}
       <Rect
         width={CORNER_W}
         height={CORNER_H}
@@ -112,6 +130,7 @@ const COUPONS = [...OFFERS, FEATURED_BAKERY_COUPON];
 const CATEGORIES = ['All Offers', ...Array.from(new Set(COUPONS.map((coupon) => coupon.title)))];
 
 const COUPON_ACCENTS: Record<string, string> = {
+  'Froo Bistro': 'bg-orange-500 shadow-orange-100',
   'Dairy & Eggs': 'bg-emerald-600 shadow-emerald-100',
   'Fresh Produce': 'bg-[#006320] shadow-green-100',
   Bakery: 'bg-amber-500 shadow-amber-100',
@@ -333,9 +352,9 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
             <View className="flex-row items-center flex-1" style={{ gap: 16 * designScale }}>
               {coupon.image ? (
                 <ExpoImage
-                  source={{ uri: coupon.image }}
-                  style={{ width: 64 * designScale, height: 64 * designScale, borderRadius: 16 * designScale }}
-                  contentFit="cover"
+                  source={imageSource(coupon.image)}
+                  style={{ width: 64 * designScale, height: 64 * designScale, borderRadius: 16 * designScale, backgroundColor: isCutout(coupon.image) ? '#fbf3e8' : undefined }}
+                  contentFit={isCutout(coupon.image) ? 'contain' : 'cover'}
                 />
               ) : (
                 <View
@@ -570,7 +589,7 @@ export function CouponsView() {
                 className="relative bg-white border border-slate-100 shadow-sm overflow-hidden"
                 style={{ padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }}
               >
-                {hasImage && <CouponImageCorner uri={won.prize.image as string} id={won.id} designScale={designScale} />}
+                {hasImage && won.prize.image !== undefined && <CouponImageCorner image={won.prize.image} id={won.id} designScale={designScale} />}
                 <View className="flex-row items-center" style={{ gap: 16 * designScale, paddingRight: hasImage ? 96 * designScale : 0 }}>
                   {!hasImage && (
                     <View
@@ -674,7 +693,7 @@ export function CouponsView() {
             className="relative bg-white border border-slate-100 shadow-sm overflow-hidden"
             style={{ padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }}
           >
-            {offer.image && <CouponImageCorner uri={offer.image} id={offer.id} designScale={designScale} />}
+            {offer.image !== undefined && <CouponImageCorner image={offer.image} id={offer.id} designScale={designScale} />}
             <View className="flex-row items-center" style={{ gap: 16 * designScale, paddingRight: 96 * designScale }}>
               <View
                 className={`items-center justify-center shadow-lg ${getCouponAccent(offer.title)}`}
