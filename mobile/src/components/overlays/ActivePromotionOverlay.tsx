@@ -1,17 +1,26 @@
 import React from 'react';
-import { Modal, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Modal, useWindowDimensions, View } from 'react-native';
 import { Text } from '../Text';
 import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from '../LinearGradient';
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { GestureHandlerRootView, GestureDetector } from 'react-native-gesture-handler';
 import { QrCode, Timer, X } from 'lucide-react-native';
 import { useAppContext } from '../../context/AppContext';
 import { AppPressable } from '../AppPressable';
 import { imageSource, isCutout } from '../../theme/image';
+import { elevation } from '../../theme/elevation';
+import { useSwipeDownSurface } from '../useSwipeDownSurface';
 
 export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const designScale = windowWidth / 425;
+  // Slides up as a sheet and is dismissed by pulling down anywhere while scrolled to the top.
+  const { requestClose, surfaceAnimatedStyle, contentGesture, scrollProps } = useSwipeDownSurface({
+    closedOffset: windowHeight,
+    onClosed: onClose,
+    dismissDistanceRatio: 0.16,
+  });
   const { activePromotionItem: item, redeemedItems } = useAppContext();
   const expiryTime = item ? redeemedItems[item.name]?.expiry || 0 : 0;
 
@@ -33,20 +42,18 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
   const timeString = `${mins}:${secs.toString().padStart(2, '0')}`;
 
   return (
-    <Modal transparent visible onRequestClose={onClose} animationType="none" statusBarTranslucent>
+    <Modal transparent visible onRequestClose={requestClose} animationType="none" statusBarTranslucent>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View
-        entering={FadeInDown.duration(300)}
-        exiting={FadeOut}
-        style={{
+        style={[elevation.floating, {
           flex: 1,
           overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: '#f1f5f9',
           borderRadius: 28 * designScale,
           backgroundColor: '#ffffff',
-        }}
+        }, surfaceAnimatedStyle]}
       >
-        <ScrollView
+        <GestureDetector gesture={contentGesture}>
+        <Animated.ScrollView {...scrollProps}
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingBottom: 40 * designScale }}
           showsVerticalScrollIndicator={false}
@@ -62,15 +69,15 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
         />
         <LinearGradient colors={['transparent', 'rgba(255,255,255,0.2)', 'white']} locations={[0, 0.5, 1]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} className="absolute inset-0" />
         <AppPressable
-          onPress={onClose}
-          className="absolute bg-white/50 items-center justify-center border border-white/40"
-          style={{
+          onPress={requestClose}
+          className="absolute bg-white/50 items-center justify-center"
+          style={[elevation.card, {
             top: 48 * designScale,
             right: 24 * designScale,
             width: 40 * designScale,
             height: 40 * designScale,
             borderRadius: 20 * designScale,
-          }}
+          }]}
         >
           <X size={20 * designScale} color="#1e293b" />
         </AppPressable>
@@ -104,8 +111,8 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
 
         {!showQR ? (
           <View
-            className="bg-slate-50 border border-slate-100 items-center shadow-sm w-full"
-            style={{ borderRadius: 32 * designScale, padding: 32 * designScale }}
+            className="bg-slate-50 items-center w-full"
+            style={[elevation.card, { borderRadius: 32 * designScale, padding: 32 * designScale }]}
           >
             <View
               className="bg-[#ffe2e2] items-center justify-center"
@@ -164,8 +171,8 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
           </View>
         ) : (
           <View
-            className="bg-white border border-slate-200 items-center shadow-lg w-full"
-            style={{ borderRadius: 32 * designScale, padding: 32 * designScale }}
+            className="bg-white items-center w-full"
+            style={[elevation.card, { borderRadius: 32 * designScale, padding: 32 * designScale }]}
           >
             <Text
               className="font-bold text-slate-500 uppercase"
@@ -176,16 +183,15 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
                 letterSpacing: 1.4 * designScale,
               }}
             >
-              Show this code to cashier
+              Show this code to the cashier
             </Text>
             <View
-              className="bg-white border-slate-900"
-              style={{
+              className="bg-white"
+              style={[elevation.card, {
                 padding: 16 * designScale,
-                borderWidth: 4 * designScale,
                 borderRadius: 24 * designScale,
                 marginBottom: 24 * designScale,
-              }}
+              }]}
             >
               <QrCode size={192 * designScale} color="#0f172a" />
             </View>
@@ -211,8 +217,10 @@ export function ActivePromotionOverlay({ onClose }: { onClose: () => void }) {
           </View>
         )}
       </View>
-        </ScrollView>
+        </Animated.ScrollView>
+        </GestureDetector>
       </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

@@ -54,7 +54,7 @@ interface AppContextValue {
   registerGamePoints: (points: number) => void;
   /** Records a Prize Drop result: points prizes top up the balance immediately, product prizes are
    * only added to the Rewards list — winning one doesn't start its redemption clock. */
-  claimPrize: (prize: ExtractionPrize) => void;
+  claimPrize: (prize: ExtractionPrize) => string;
   /** Starts a won product prize's 15-minute in-store redemption window and opens its QR code. */
   activatePrize: (wonPrizeId: string) => void;
 }
@@ -98,11 +98,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setCurrentPoints((prev) => prev + (prize.pointsValue ?? 0));
       // Points have nothing to activate later, so mark them activated on arrival.
       setWonPrizes((prev) => [{ id, prize, wonAt: Date.now(), activatedAt: Date.now() }, ...prev]);
-      return;
+      return id;
     }
     // Product prizes wait for the player to activate them — winning one at home shouldn't start
     // a 15-minute in-store countdown before they've even left the house.
     setWonPrizes((prev) => [{ id, prize, wonAt: Date.now(), activatedAt: null }, ...prev]);
+    return id;
   };
 
   const activatePrize = (wonPrizeId: string) => {

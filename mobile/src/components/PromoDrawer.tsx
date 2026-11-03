@@ -4,11 +4,9 @@ import { Text } from './Text';
 import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from './LinearGradient';
 import Svg, { G, Path } from 'react-native-svg';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
-  FadeIn,
-  FadeOut,
   cancelAnimation,
   runOnJS,
   useAnimatedStyle,
@@ -20,8 +18,11 @@ import Animated, {
 import { Share2, X, Leaf } from 'lucide-react-native';
 import { AppPressable } from './AppPressable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-type AdItem = { img: string; title: string; desc: string };
+import { elevation } from '../theme/elevation';
+import { imageSource, isCutout, type ImageRef } from '../theme/image';
+import { BISTRO } from '../data/bistro';
+import { useSwipeDownSurface } from './useSwipeDownSurface';
+type AdItem = { img: ImageRef; title: string; desc: string };
 
 type TitleSegment = { text: string; className?: string };
 
@@ -34,7 +35,7 @@ type PartnerAd = {
   subtitle: string;
   subtitleColor: string;
   desc: string;
-  img: string;
+  img: ImageRef;
   bgColor: string;
   fillColor: string;
   gradient: [string, string, string];
@@ -52,29 +53,29 @@ type PartnerAd = {
 export const PARTNER_ADS: PartnerAd[] = [
   {
     id: 1,
-    tag: 'Weekly Editorial',
+    tag: 'Froo Bistro',
     tagColor: '#006320',
-    titleLines: [[{ text: 'Taste' }], [{ text: 'The', className: 'text-orange-400' }], [{ text: 'Summer' }]],
-    titleText: 'TASTE THE SUMMER.',
-    subtitle: 'Summer Issue',
+    titleLines: [[{ text: 'Hot' }], [{ text: 'From The', className: 'text-orange-400' }], [{ text: 'Bistro' }]],
+    titleText: 'HOT FROM THE BISTRO.',
+    subtitle: 'Autumn Menu',
     subtitleColor: 'text-green-400',
-    desc: 'Discover our curated selection of hand-picked organic fruits, artisan cheeses, and farm-fresh vegetables for your perfect weekend picnic.',
-    img: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80&w=800',
+    desc: 'Crispy tenders, loaded hot dogs and pressed paninis, made fresh in every froo store. Every bite earns points.',
+    img: BISTRO.crocantBox.image,
     bgColor: 'bg-[#006320]',
     fillColor: 'rgb(0,99,32)',
     gradient: ['transparent', 'rgba(0,99,32,0.4)', 'rgb(0,99,32)'],
     btnClass: 'bg-orange-500 text-white',
     btnTextClass: 'text-white',
-    articleSectionTitle: 'OUR PROMISE.',
+    articleSectionTitle: 'MADE FRESH.',
     articleSectionBg: 'bg-[#006320]',
     articleSectionText: 'text-white',
-    articleSectionDesc: 'We work directly with over 50 local farmers to bring you the freshest produce within 24 hours of harvest.',
+    articleSectionDesc: 'Every froo Bistro cooks to order all day, so what you pick up is hot, crispy and ready to go.',
     articleBtn: 'bg-white text-[#006320]',
-    articleBtnText: 'Meet The Farmers',
+    articleBtnText: 'Find a Bistro',
     items: [
-      { img: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=400', title: 'Citrus Burst', desc: 'Farm fresh oranges.' },
-      { img: 'https://images.unsplash.com/photo-1748118869490-16c8e8a6fd7d?auto=format&fit=crop&q=80&w=400', title: 'Berry Sweet', desc: 'Organic strawberries.' },
-      { img: 'https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?auto=format&fit=crop&q=80&w=400', title: 'Melon Magic', desc: 'Sweet watermelon.' },
+      { img: BISTRO.hotdog.image, title: BISTRO.hotdog.name, desc: 'Pickles, mustard, crispy onions.' },
+      { img: BISTRO.chickenPanini.image, title: BISTRO.chickenPanini.name, desc: 'Pressed to order.' },
+      { img: BISTRO.donerWrap.image, title: BISTRO.donerWrap.name, desc: 'Grilled chicken, garlic sauce.' },
     ],
   },
   {
@@ -161,24 +162,35 @@ function HeaderHandle({ color = '#006320' }: { color?: string }) {
 
 function EditorialOverlay({ onClose, ad }: { onClose: () => void; ad: PartnerAd }) {
   const { height } = useWindowDimensions();
+  // Slides up as a sheet; pull down anywhere while scrolled to the top to close it.
+  const { requestClose, surfaceAnimatedStyle, contentGesture, scrollProps } = useSwipeDownSurface({
+    closedOffset: height,
+    onClosed: onClose,
+    dismissDistanceRatio: 0.16,
+  });
 
   return (
-    <Modal transparent visible onRequestClose={onClose} animationType="none" statusBarTranslucent>
+    <Modal transparent visible onRequestClose={requestClose} animationType="none" statusBarTranslucent>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View
-        entering={FadeIn.duration(300)}
-        exiting={FadeOut.duration(300)}
-        style={{
+        style={[elevation.floating, {
           flex: 1,
           overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: '#f1f5f9',
           borderRadius: 28,
           backgroundColor: '#ffffff',
-        }}
+        }, surfaceAnimatedStyle]}
       >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <GestureDetector gesture={contentGesture}>
+      <Animated.ScrollView {...scrollProps} showsVerticalScrollIndicator={false}>
         <View className="relative w-full" style={{ height: height * 0.6 }}>
-          <ExpoImage source={{ uri: ad.img }} style={{ width: '100%', height: '100%', position: 'absolute' }} contentFit="cover" />
+          {isCutout(ad.img) ? (
+            // Bistro cut-out: the product sits on the brand green instead of a full-bleed photo.
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: ad.fillColor }]}>
+              <ExpoImage source={imageSource(ad.img)} style={{ position: 'absolute', top: '8%', left: '12%', width: '76%', height: '52%' }} contentFit="contain" />
+            </View>
+          ) : (
+            <ExpoImage source={imageSource(ad.img)} style={{ width: '100%', height: '100%', position: 'absolute' }} contentFit="cover" />
+          )}
           <LinearGradient colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.2)', 'transparent']} start={{ x: 0, y: 1 }} end={{ x: 0, y: 0 }} className="absolute inset-0" />
           <View className="absolute bottom-0 left-0 w-full p-8">
             <Text className={`${ad.subtitleColor} font-bold uppercase text-xs mb-3`}>{ad.subtitle}</Text>
@@ -191,8 +203,15 @@ function EditorialOverlay({ onClose, ad }: { onClose: () => void; ad: PartnerAd 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-10 -mx-8 px-8" contentContainerStyle={{ gap: 16 }}>
             {ad.items.map((item, i) => (
               <View key={i} style={{ width: 200 }}>
-                <View className="w-full aspect-[4/5] rounded-[24px] overflow-hidden mb-4">
-                  <ExpoImage source={{ uri: item.img }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                <View
+                  className="w-full aspect-[4/5] rounded-[24px] overflow-hidden mb-4"
+                  style={{ backgroundColor: isCutout(item.img) ? '#fbf3e8' : '#f1f5f9', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <ExpoImage
+                    source={imageSource(item.img)}
+                    style={{ width: isCutout(item.img) ? '86%' : '100%', height: isCutout(item.img) ? '86%' : '100%' }}
+                    contentFit={isCutout(item.img) ? 'contain' : 'cover'}
+                  />
                 </View>
                 <Text className="font-bold text-slate-900 text-lg mb-1">{item.title}</Text>
                 <Text className="text-slate-500 text-sm">{item.desc}</Text>
@@ -211,12 +230,14 @@ function EditorialOverlay({ onClose, ad }: { onClose: () => void; ad: PartnerAd 
             </View>
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
+      </GestureDetector>
 
-      <AppPressable onPress={onClose} className="absolute top-6 right-6 w-12 h-12 bg-black/20 rounded-full items-center justify-center z-20">
+      <AppPressable onPress={requestClose} className="absolute top-6 right-6 w-12 h-12 bg-black/20 rounded-full items-center justify-center z-20">
         <X size={24} color="white" />
       </AppPressable>
       </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
@@ -235,11 +256,13 @@ function PromoImageLayer({ ad, active }: { ad: PartnerAd; active: boolean }) {
 
   return (
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFillObject, imageStyle]}>
-      <ExpoImage
-        source={{ uri: ad.img }}
-        style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0.6 }}
-        contentFit="cover"
-      />
+      {isCutout(ad.img) ? null : (
+        <ExpoImage
+          source={imageSource(ad.img)}
+          style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0.6 }}
+          contentFit="cover"
+        />
+      )}
       <LinearGradient
         colors={ad.gradient}
         start={{ x: 0, y: 0 }}
@@ -474,6 +497,15 @@ export function PromoDrawer() {
                 </View>
 
                 <Animated.View style={[contentStyle, { gap: 20 * shellScale }]}>
+                  {isCutout(contentAd.img) ? (
+                    // Bistro product photo, laid out with the copy so it always sits right above
+                    // the headline whatever the screen height.
+                    <ExpoImage
+                      source={imageSource(contentAd.img)}
+                      style={{ width: 230 * shellScale, height: 190 * shellScale, alignSelf: 'flex-end', marginBottom: -36 * shellScale, transform: [{ rotate: '-8deg' }] }}
+                      contentFit="contain"
+                    />
+                  ) : null}
                   <View className="self-start">
                     <View
                       className="bg-white rounded-full"

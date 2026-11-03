@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../Text';
 import { Image as ExpoImage } from 'expo-image';
@@ -8,15 +9,22 @@ import type { GameDefinition, GameResult } from '../games/types';
 import { AppPressable } from '../AppPressable';
 import iconGameSession from '../../../assets/brand/icon-game-session-header.png';
 import mascotGamesImg from '../../../assets/brand/mascot-games-float.png';
-
+import { elevation } from '../../theme/elevation';
+import { GameResultSheet, type GameRunSummary } from './GameResultSheet';
 interface GameSessionOverlayProps {
   game: GameDefinition;
+  /** Set once a run ends; shows the results sheet over the playfield. */
+  summary: GameRunSummary | null;
   onExit: () => void;
   onGameOver: (result: GameResult) => void;
+  onPlayAgain: () => void;
+  onOpenDrop: () => void;
 }
 
-export function GameSessionOverlay({ game, onExit, onGameOver }: GameSessionOverlayProps) {
+export function GameSessionOverlay({ game, summary, onExit, onGameOver, onPlayAgain, onOpenDrop }: GameSessionOverlayProps) {
   const GameComponent = game.Component;
+  // Bumped on "Play again" to remount the game, which starts a fresh run.
+  const [runKey, setRunKey] = React.useState(0);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const shouldReduceMotion = useReducedMotion();
@@ -38,13 +46,13 @@ export function GameSessionOverlay({ game, onExit, onGameOver }: GameSessionOver
           <ExpoImage source={iconGameSession} style={{ width: 54, height: 53 }} contentFit="contain" />
           <Text className="font-bold text-slate-800 text-sm">{game.title}</Text>
         </View>
-        <AppPressable onPress={onExit} className="w-9 h-9 bg-slate-50 rounded-full items-center justify-center border border-slate-100">
+        <AppPressable onPress={onExit} className="w-9 h-9 bg-slate-50 rounded-full items-center justify-center" style={elevation.raised}>
           <X size={16} color="#64748b" />
         </AppPressable>
       </View>
 
       <View className="flex-1 items-center justify-center px-4" style={{ paddingBottom: playfieldPaddingBottom }}>
-        <GameComponent onGameOver={onGameOver} />
+        <GameComponent key={runKey} onGameOver={onGameOver} />
       </View>
 
       {/*
@@ -74,6 +82,17 @@ export function GameSessionOverlay({ game, onExit, onGameOver }: GameSessionOver
           style={{ width: '100%', height: '100%' }}
         />
       </Animated.View>
+      {summary ? (
+        <GameResultSheet
+          summary={summary}
+          onExit={onExit}
+          onOpenDrop={onOpenDrop}
+          onPlayAgain={() => {
+            setRunKey((key) => key + 1);
+            onPlayAgain();
+          }}
+        />
+      ) : null}
     </Animated.View>
   );
 }

@@ -4,8 +4,17 @@ import React from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from './src/components/Text';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { Image as ExpoImage } from 'expo-image';
 import { Bell, Home, MapPin, QrCode, ScanLine, ShoppingBag, Tag, Timer } from 'lucide-react-native';
@@ -35,7 +44,7 @@ import { useHardwareBack } from './src/hooks/useHardwareBack';
 import { BackdropBlur } from './src/components/BackdropBlur';
 import { imageSource, isCutout } from './src/theme/image';
 import SarahAvatar from './assets/brand/avatar-sarah.svg';
-
+import { elevation, glow } from './src/theme/elevation';
 // Hold the native splash until Inter is registered. Without this the first frame renders in the
 // platform default face and visibly reflows once the real font swaps in.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -69,9 +78,43 @@ const qrCardExiting = () => {
 };
 
 function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const shellScale = windowWidth / 425;
+
+  // Flick or drag the card down to put it away (tapping outside or Done still work too).
+  const dragY = useSharedValue(0);
+  React.useEffect(() => {
+    if (visible) dragY.value = 0;
+  }, [visible, dragY]);
+  const cardDrag = React.useMemo(
+    () =>
+      Gesture.Pan()
+        .maxPointers(1)
+        .activeOffsetY(8)
+        .failOffsetX([-24, 24])
+        .onUpdate((event) => {
+          dragY.value = event.translationY < 0 ? event.translationY * 0.12 : event.translationY;
+        })
+        .onEnd((event) => {
+          if (dragY.value > 110 || event.velocityY > 800) {
+            dragY.value = withTiming(windowHeight * 0.6, { duration: 200 }, (finished) => {
+              if (finished) runOnJS(onClose)();
+            });
+          } else {
+            dragY.value = withSpring(0, { damping: 28, stiffness: 320, overshootClamping: true });
+          }
+        }),
+    [dragY, onClose, windowHeight],
+  );
+  const cardDragStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: dragY.value }],
+    opacity: 1 - Math.min(0.6, Math.max(0, dragY.value) / 500),
+  }));
+
+  const backdropDragStyle = useAnimatedStyle(() => ({
+    opacity: 1 - Math.min(1, Math.max(0, dragY.value) / 420),
+  }));
 
   if (!visible) return null;
   const bars = [1, 2, 1, 0.5, 3, 1, 1.5, 2, 1, 0.5];
@@ -88,10 +131,12 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
         bottom: 0,
         left: 0,
         zIndex: 50,
-        backgroundColor: 'rgba(15,23,42,0.4)',
       }}
     >
-      <BackdropBlur />
+      {/* Dim + blur fade out as the card is dragged away. */}
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.4)' }, backdropDragStyle]}>
+        <BackdropBlur />
+      </Animated.View>
       <AppPressable onPress={onClose} style={StyleSheet.absoluteFill} />
       <View
         pointerEvents="box-none"
@@ -106,6 +151,8 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
           padding: 24 * shellScale,
         }}
       >
+        <GestureDetector gesture={cardDrag}>
+        <Animated.View style={cardDragStyle}>
         <Animated.View
           entering={qrCardEntering}
           exiting={qrCardExiting}
@@ -114,8 +161,6 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
             height: 422 * shellScale,
             padding: 32 * shellScale,
             borderRadius: 32 * shellScale,
-            borderWidth: shellScale,
-            borderColor: '#f1f5f9',
             backgroundColor: '#ffffff',
             alignItems: 'center',
             boxShadow: '0 25px 50px -12px rgba(15,23,42,0.25)',
@@ -127,8 +172,6 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
               paddingVertical: 6 * shellScale,
               borderRadius: 12 * shellScale,
               marginBottom: 32 * shellScale,
-              borderWidth: shellScale,
-              borderColor: '#dcfce7',
               backgroundColor: '#f0fdf4',
             }}
           >
@@ -140,16 +183,13 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
             </Text>
           </View>
           <View
-            style={{
+            style={[elevation.well, {
               width: '100%',
               padding: 24 * shellScale,
               borderRadius: 24 * shellScale,
-              borderWidth: 2 * shellScale,
-              borderStyle: 'dashed',
-              borderColor: '#bbf7d0',
               backgroundColor: '#f8fafc',
               alignItems: 'center',
-            }}
+            }]}
           >
             <View
               style={{
@@ -197,6 +237,8 @@ function QrModal({ visible, onClose }: { visible: boolean; onClose: () => void }
             </Text>
           </AppPressable>
         </Animated.View>
+        </Animated.View>
+        </GestureDetector>
       </View>
     </Animated.View>
   );
@@ -296,14 +338,15 @@ function AppShell() {
     <View
       className="flex-1 bg-white"
       style={{
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
         borderRadius: 28 * shellScale,
         overflow: 'hidden',
       }}
     >
       {/* Header spacer - reserves layout space above the scrollable content */}
-      <View style={{ height: 122 * shellScale + safeHeaderShift }} className="relative z-10 bg-white border-b border-slate-100" />
+      <View
+        style={{ height: 122 * shellScale + safeHeaderShift, boxShadow: '0 8px 18px -14px rgba(15, 23, 42, 0.35)' }}
+        className="relative z-10 bg-white"
+      />
 
       {/* Promo Drawer - draggable green header that opens into a promotions drawer */}
       <PromoDrawer />
@@ -327,13 +370,12 @@ function AppShell() {
           style={{ position: 'absolute', left: 21 * shellScale, top: 0, width: 112 * shellScale, alignItems: 'center', gap: 4 * shellScale }}
         >
           <View
-            className="bg-slate-200 border-green-500 items-center justify-center overflow-hidden"
-            style={{
+            className="bg-slate-200 items-center justify-center overflow-hidden"
+            style={[elevation.card, {
               width: 40 * shellScale,
               height: 40 * shellScale,
               borderRadius: 20 * shellScale,
-              borderWidth: 2 * shellScale,
-            }}
+            }]}
           >
             <SarahAvatar width="100%" height="100%" />
           </View>
@@ -362,15 +404,14 @@ function AppShell() {
           <Bell size={24 * shellScale} color="#94a3b8" />
           {unreadCount > 0 && (
             <View
-              className="absolute bg-red-500 border-white items-center justify-center"
-              style={{
+              className="absolute bg-red-500 items-center justify-center"
+              style={[elevation.card, {
                 top: 4 * shellScale,
                 right: 4 * shellScale,
                 width: 16 * shellScale,
                 height: 16 * shellScale,
                 borderRadius: 8 * shellScale,
-                borderWidth: 2 * shellScale,
-              }}
+              }]}
             >
               <Text style={{ fontSize: 8 * shellScale }} className="text-white font-bold">{unreadCount}</Text>
             </View>
@@ -405,7 +446,7 @@ function AppShell() {
               <AppPressable
                 key={i}
                 onPress={() => setActivePromotionItem(reward.item)}
-                className="bg-white/95 rounded-2xl p-3 shadow-lg shadow-green-900/10 border border-green-200 flex-row items-center justify-between"
+                className="bg-white/95 rounded-2xl p-3 flex-row items-center justify-between" style={elevation.card}
               >
                 <View className="flex-row items-center gap-3">
                   <ExpoImage source={imageSource(reward.item.image)} style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: isCutout(reward.item.image) ? '#fbf3e8' : undefined }} contentFit={isCutout(reward.item.image) ? 'contain' : 'cover'} />
@@ -433,22 +474,22 @@ function AppShell() {
           paddingHorizontal: 24 * shellScale,
           paddingTop: 12 * shellScale,
           paddingBottom: 12 * shellScale + insets.bottom,
+          // Lifted off the content with an upward shadow instead of a hairline.
+          boxShadow: '0 -10px 24px -16px rgba(15, 23, 42, 0.28)',
         }}
         className="absolute bottom-0 w-full bg-white flex-row justify-between items-center z-20"
       >
-        <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: '#f1f5f9' }} />
         <NavItem scale={shellScale} icon={Home} label="Dashboard" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <NavItem scale={shellScale} icon={Tag} label="Offers" active={activeTab === 'coupons'} onClick={() => setActiveTab('coupons')} />
 
         <View style={{ transform: [{ translateY: -24 * shellScale }] }}>
           <AppPressable
             onPress={() => setIsScanning(true)}
-            className="bg-green-600 shadow-lg shadow-green-200 border-white"
-            style={{
+            className="bg-green-600"
+            style={[glow('0, 166, 62', 0.55), {
               padding: 14 * shellScale,
               borderRadius: 16 * shellScale,
-              borderWidth: 4 * shellScale,
-            }}
+            }]}
           >
             <ScanLine size={24 * shellScale} color="white" />
           </AppPressable>

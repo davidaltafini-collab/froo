@@ -14,6 +14,7 @@ import Animated, {
   withRepeat,
   withSpring,
   withTiming,
+  useAnimatedScrollHandler,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Svg, {
@@ -34,7 +35,7 @@ import { AppPressable } from '../components/AppPressable';
 import { BackdropBlur } from '../components/BackdropBlur';
 import type { Offer } from '../types';
 import { SheetGrabber } from '../components/SheetGrabber';
-
+import { elevation, glow } from '../theme/elevation';
 /**
  * The offer photo tucked into the card's top-right corner.
  *
@@ -160,8 +161,6 @@ function CategoryFilter({
       onPressIn={onSelect}
       style={{
         backgroundColor: isActive ? '#006320' : '#ffffff',
-        borderWidth: isActive ? 0 : 1,
-        borderColor: '#f1f5f9',
         boxShadow: isActive ? 'none' : '0 1px 2px rgba(15,23,42,0.05)',
         paddingHorizontal: 20 * designScale,
         paddingVertical: 8 * designScale,
@@ -256,43 +255,78 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
     );
   }, [backdropOpacity, isMorphClosing, onClose, progress]);
 
-  const dragGesture = React.useMemo(
-    () =>
-      Gesture.Pan()
-        .maxPointers(1)
-        .activeOffsetY(8)
-        .failOffsetX([-24, 24])
-        .onBegin(() => cancelAnimation(dragY))
-        .onUpdate((event) => {
-          dragY.value = event.translationY < 0 ? event.translationY * 0.08 : event.translationY;
-        })
-        .onEnd((event) => {
-          if (dragY.value > sheetHeight * 0.2 || event.velocityY > 850) {
-            // A drag-dismiss is a slide, not a second card morph. Morphing toward the source card
-            // while also translating down compounded two exits and caused the visible close glitch.
-            backdropOpacity.value = withTiming(0, {
-              duration: 210,
-              easing: Easing.bezier(0.32, 0, 0.67, 0),
-            });
-            dragY.value = withTiming(
-              sheetHeight,
-              { duration: 210, easing: Easing.bezier(0.32, 0, 0.67, 0) },
-              (finished) => {
-                if (finished) runOnJS(onClose)();
-              },
-            );
-            return;
-          }
-          dragY.value = withSpring(0, {
-            damping: 32,
-            stiffness: 320,
-            mass: 0.75,
-            overshootClamping: true,
-            energyThreshold: 0.001,
-          });
-        }),
+  // Pull-to-dismiss from anywhere on the sheet while its content is scrolled to the top (iOS
+  // sheet behaviour); once the content is scrolled, the same drag just scrolls it.
+  const scrollY = useSharedValue(0);
+  const contentDragging = useSharedValue(false);
+  const anchorY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  const finishDrag = React.useCallback(
+    (velocityY: number) => {
+      'worklet';
+      if (dragY.value > sheetHeight * 0.2 || velocityY > 850) {
+        // A drag-dismiss is a slide, not a second card morph. Morphing toward the source card
+        // while also translating down compounded two exits and caused the visible close glitch.
+        backdropOpacity.value = withTiming(0, {
+          duration: 210,
+          easing: Easing.bezier(0.32, 0, 0.67, 0),
+        });
+        dragY.value = withTiming(
+          sheetHeight,
+          { duration: 210, easing: Easing.bezier(0.32, 0, 0.67, 0) },
+          (finished) => {
+            if (finished) runOnJS(onClose)();
+          },
+        );
+        return;
+      }
+      dragY.value = withSpring(0, {
+        damping: 32,
+        stiffness: 320,
+        mass: 0.75,
+        overshootClamping: true,
+        energyThreshold: 0.001,
+      });
+    },
     [backdropOpacity, dragY, onClose, sheetHeight],
   );
+
+  const sheetGesture = React.useMemo(() => {
+    const nativeScroll = Gesture.Native();
+    const pan = Gesture.Pan()
+      .maxPointers(1)
+      .activeOffsetY([-6, 6])
+      .failOffsetX([-24, 24])
+      .onStart(() => {
+        contentDragging.value = false;
+      })
+      .onUpdate((event) => {
+        if (!contentDragging.value) {
+          if (scrollY.value > 1 || event.translationY <= 0) return;
+          contentDragging.value = true;
+          anchorY.value = event.translationY;
+          cancelAnimation(dragY);
+        }
+        const next = event.translationY - anchorY.value;
+        dragY.value = next < 0 ? 0 : next;
+      })
+      .onEnd((event) => {
+        if (!contentDragging.value) return;
+        contentDragging.value = false;
+        finishDrag(event.velocityY);
+      })
+      .onFinalize(() => {
+        if (!contentDragging.value) return;
+        contentDragging.value = false;
+        finishDrag(0);
+      });
+    return Gesture.Simultaneous(pan, nativeScroll);
+  }, [anchorY, contentDragging, dragY, finishDrag, scrollY]);
 
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
   const sheetStyle = useAnimatedStyle(() => ({
@@ -330,16 +364,20 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
         <Animated.View
           style={[sheetStyle, dragStyle, {
             padding: 32 * designScale,
-            borderWidth: 1 * designScale,
-            borderColor: '#f1f5f9',
             backgroundColor: '#ffffff',
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15,23,42,0.25)',
           }]}
         >
           <Animated.View style={[{ flex: 1 }, contentStyle]}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <GestureDetector gesture={dragGesture}>
+          <GestureDetector gesture={sheetGesture}>
+          <Animated.ScrollView
+            showsVerticalScrollIndicator={false}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+            bounces={false}
+            overScrollMode="never"
+          >
               <View style={{ width: '100%', alignItems: 'center', paddingBottom: 18 * designScale }}>
                 <View
                   style={{ alignSelf: 'center', marginBottom: 6 * designScale }}
@@ -347,7 +385,6 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
                   <SheetGrabber scale={designScale} />
                 </View>
               </View>
-            </GestureDetector>
             <View className="flex-row justify-between items-start" style={{ marginBottom: 24 * designScale }}>
             <View className="flex-row items-center flex-1" style={{ gap: 16 * designScale }}>
               {coupon.image ? (
@@ -389,14 +426,13 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
           </View>
 
           <View
-            className="bg-slate-50 border-dashed border-slate-200 items-center w-full relative overflow-hidden"
-            style={{
+            className="bg-slate-50 items-center w-full relative overflow-hidden"
+            style={[elevation.well, {
               height: 206 * designScale,
               padding: 24 * designScale,
               borderRadius: 24 * designScale,
-              borderWidth: 2 * designScale,
               marginBottom: 24 * designScale,
-            }}
+            }]}
           >
             <View
               className="absolute top-0 right-0 bg-green-100"
@@ -467,7 +503,7 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
               </View>
             </View>
 
-            <View className="border-t border-slate-100" style={{ paddingTop: 16 * designScale }}>
+            <View style={{ paddingTop: 16 * designScale }}>
               <Text
                 className="font-bold text-slate-800 uppercase"
                 style={{ marginBottom: 8 * designScale, fontSize: 12 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.6 * designScale }}
@@ -475,11 +511,12 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
                 Terms &amp; Conditions
               </Text>
               <Text className="text-slate-500" style={{ fontSize: 9 * designScale, lineHeight: 16.25 * designScale }}>
-                Offer valid until Nov 30, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all froo participating locations.
+                Offer valid until Nov 30, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all participating froo stores.
               </Text>
             </View>
           </View>
-          </ScrollView>
+          </Animated.ScrollView>
+          </GestureDetector>
           </Animated.View>
         </Animated.View>
       </View>
@@ -526,8 +563,8 @@ export function CouponsView() {
 
       <AppPressable
         onPress={() => setShowRewards(true)}
-        className="shadow-sm flex-row items-center justify-between bg-[#006320]"
-        style={{ padding: 20 * designScale, marginBottom: 32 * designScale, borderRadius: 24 * designScale }}
+        className="flex-row items-center justify-between bg-[#006320]"
+        style={[glow('0, 99, 32'), { padding: 20 * designScale, marginBottom: 32 * designScale, borderRadius: 24 * designScale }]}
       >
         <View className="flex-row items-center" style={{ gap: 16 * designScale }}>
           <View
@@ -559,8 +596,8 @@ export function CouponsView() {
           </View>
         </View>
         <View
-          className="bg-white/20 items-center justify-center border border-white/20"
-          style={{ width: 40 * designScale, height: 40 * designScale, borderRadius: 20 * designScale }}
+          className="bg-white/20 items-center justify-center"
+          style={[elevation.card, { width: 40 * designScale, height: 40 * designScale, borderRadius: 20 * designScale }]}
         >
           <ChevronRight size={20 * designScale} color="white" />
         </View>
@@ -586,15 +623,15 @@ export function CouponsView() {
             return (
               <View
                 key={won.id}
-                className="relative bg-white border border-slate-100 shadow-sm overflow-hidden"
-                style={{ padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }}
+                className="relative bg-white overflow-hidden"
+                style={[elevation.card, { padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }]}
               >
                 {hasImage && won.prize.image !== undefined && <CouponImageCorner image={won.prize.image} id={won.id} designScale={designScale} />}
                 <View className="flex-row items-center" style={{ gap: 16 * designScale, paddingRight: hasImage ? 96 * designScale : 0 }}>
                   {!hasImage && (
                     <View
-                      className="items-center justify-center shadow-lg"
-                      style={{ width: 56 * designScale, height: 56 * designScale, borderRadius: 16 * designScale, backgroundColor: rarityColor }}
+                      className="items-center justify-center"
+                      style={[elevation.card, { width: 56 * designScale, height: 56 * designScale, borderRadius: 16 * designScale, backgroundColor: rarityColor }]}
                     >
                       <Gift size={24 * designScale} strokeWidth={2.4} color="white" />
                     </View>
@@ -630,8 +667,8 @@ export function CouponsView() {
                 {isProduct && !isExpired ? (
                   <AppPressable
                     onPress={() => (isLive ? setActivePromotionItem(redemption!.item) : activatePrize(won.id))}
-                    className={`w-full items-center ${isLive ? 'bg-slate-50 border border-slate-100' : 'bg-green-600'}`}
-                    style={{ paddingVertical: 12 * designScale, borderRadius: 12 * designScale }}
+                    className={`w-full items-center ${isLive ? 'bg-slate-50' : 'bg-green-600'}`}
+                    style={[elevation.card, { paddingVertical: 12 * designScale, borderRadius: 12 * designScale }]}
                   >
                     <Text
                       className={`font-bold ${isLive ? 'text-green-700' : 'text-white'}`}
@@ -642,7 +679,7 @@ export function CouponsView() {
                   </AppPressable>
                 ) : null}
                 {isExpired ? (
-                  <View className="w-full bg-slate-50 items-center border border-slate-100" style={{ paddingVertical: 12 * designScale, borderRadius: 12 * designScale }}>
+                  <View className="w-full bg-slate-50 items-center" style={[elevation.card, { paddingVertical: 12 * designScale, borderRadius: 12 * designScale }]}>
                     <Text className="text-slate-400 font-bold" style={{ fontSize: 12 * designScale, lineHeight: 16 * designScale }}>Expired</Text>
                   </View>
                 ) : null}
@@ -690,14 +727,14 @@ export function CouponsView() {
             layout={LinearTransition.springify().damping(18).stiffness(180).mass(0.7)}
           >
           <View
-            className="relative bg-white border border-slate-100 shadow-sm overflow-hidden"
-            style={{ padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }}
+            className="relative bg-white overflow-hidden"
+            style={[elevation.card, { padding: 20 * designScale, borderRadius: 24 * designScale, gap: 16 * designScale }]}
           >
             {offer.image !== undefined && <CouponImageCorner image={offer.image} id={offer.id} designScale={designScale} />}
             <View className="flex-row items-center" style={{ gap: 16 * designScale, paddingRight: 96 * designScale }}>
               <View
-                className={`items-center justify-center shadow-lg ${getCouponAccent(offer.title)}`}
-                style={{ width: 56 * designScale, height: 56 * designScale, borderRadius: 16 * designScale }}
+                className={`items-center justify-center ${getCouponAccent(offer.title)}`}
+                style={[elevation.card, { width: 56 * designScale, height: 56 * designScale, borderRadius: 16 * designScale }]}
               >
                 <offer.icon size={24 * designScale} strokeWidth={2.4} color="white" />
               </View>
@@ -735,8 +772,8 @@ export function CouponsView() {
                   setSelectedCoupon(offer);
                 });
               }}
-              className="w-full bg-slate-50 items-center border border-slate-100"
-              style={{ marginTop: 8 * designScale, paddingVertical: 12 * designScale, borderRadius: 12 * designScale }}
+              className="w-full bg-slate-50 items-center"
+              style={[elevation.card, { marginTop: 8 * designScale, paddingVertical: 12 * designScale, borderRadius: 12 * designScale }]}
             >
               <Text className="text-green-700 font-bold" style={{ fontSize: 12 * designScale, lineHeight: 16 * designScale }}>
                 View &amp; Use Coupon

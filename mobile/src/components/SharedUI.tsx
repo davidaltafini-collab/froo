@@ -5,11 +5,12 @@ import { LinearGradient } from './LinearGradient';
 import type { LucideIcon } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { AppPressable } from './AppPressable';
+import { elevation } from '../theme/elevation';
 
 export function ActionBtn({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick?: () => void }) {
   return (
     <AppPressable onPress={onClick} className="flex flex-col items-center gap-3 min-w-[72px]">
-      <View className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 items-center justify-center">
+      <View className="w-12 h-12 rounded-xl bg-slate-50 items-center justify-center" style={elevation.raised}>
         <Icon size={20} color="#94a3b8" />
       </View>
       <Text className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">{label}</Text>

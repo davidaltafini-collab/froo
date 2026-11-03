@@ -8,7 +8,7 @@ import { Clock, LocateFixed, MapPin, Navigation, Search } from 'lucide-react-nat
 import { AppPressable } from '../components/AppPressable';
 import type { Store } from '../types';
 import { StoreMap } from '../components/StoreMap';
-
+import { elevation, glow } from '../theme/elevation';
 const FROO_STORES: Store[] = [
   { id: 'RO00001', name: 'froo Giurgiului', town: 'Bucuresti', address: 'Giurgiului 103, Bucuresti', lat: 44.39327987, lng: 26.09417162, openingHours: '6:00-23:00', active: true },
   { id: 'RO00003', name: 'froo Liviu Rebreanu 13', town: 'Bucuresti', address: 'Liviu Rebreanu 13, Bucuresti', lat: 44.42594237, lng: 26.1649737, openingHours: '7:00-22:00', active: true },
@@ -103,7 +103,7 @@ export function StoresView() {
           <Text className="text-[10px] font-bold uppercase tracking-widest text-green-700">Froo Romania</Text>
           <Text className="mt-1 text-xl font-bold text-slate-900">Nearby Stores</Text>
         </View>
-        <AppPressable onPress={requestLocation} className="shrink-0 rounded-2xl border border-green-100 bg-green-50 p-3">
+        <AppPressable onPress={requestLocation} className="shrink-0 rounded-2xl bg-green-50 p-3" style={elevation.card}>
           <LocateFixed size={20} color="#15803d" />
         </AppPressable>
       </View>
@@ -118,18 +118,14 @@ export function StoresView() {
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
           placeholder="Search city or street..."
-          className="w-full bg-white border border-slate-100 shadow-sm rounded-2xl pl-14 pr-5 py-4 text-sm font-medium text-slate-800"
+          className="w-full bg-white rounded-2xl pl-14 pr-5 py-4 text-sm font-medium text-slate-800"
           style={
-            {
-              borderColor: searchFocused ? '#4ade80' : '#f1f5f9',
-              boxShadow: searchFocused ? '0 0 0 1px #4ade80' : '0 1px 2px rgba(15,23,42,0.05)',
-              outlineStyle: 'none',
-            } as never
+            [searchFocused ? glow('22, 163, 74', 0.4) : elevation.card, { outlineStyle: 'none' } as never]
           }
         />
       </View>
 
-      <View className="mb-5 overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm">
+      <View className="mb-5 overflow-hidden rounded-[28px] bg-white" style={elevation.card}>
         <View className="relative h-56 bg-slate-100">
           <StoreMap
             src={mapSrc}
@@ -150,7 +146,7 @@ export function StoresView() {
           </View>
           <AppPressable
             onPress={() => Linking.openURL(directionsUrl)}
-            className="flex-shrink-0 flex-row items-center gap-2 rounded-2xl bg-green-600 px-4 py-3 shadow-lg shadow-green-200"
+            className="flex-shrink-0 flex-row items-center gap-2 rounded-2xl bg-green-600 px-4 py-3" style={glow('0, 166, 62')}
           >
             <Navigation size={16} color="white" />
             <Text className="text-xs font-bold text-white">Directions</Text>
@@ -167,7 +163,7 @@ export function StoresView() {
 
       <AppPressable
         onPress={() => Linking.openURL(allStoresMapUrl)}
-        className="mb-4 flex-row items-center rounded-2xl border border-green-100 bg-green-50 px-4 py-3"
+        className="mb-4 flex-row items-center rounded-2xl bg-green-50 px-4 py-3" style={elevation.card}
       >
         <Text
           className="flex-1 text-xs font-bold text-green-800"
@@ -186,7 +182,7 @@ export function StoresView() {
       </AppPressable>
 
       {locationStatus === 'denied' && (
-        <View className="mb-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
+        <View className="mb-4 rounded-2xl bg-amber-50 px-4 py-3" style={elevation.card}>
           <Text className="text-xs font-semibold text-amber-800">
             Location is off, so stores are shown by city. You can still search and open directions.
           </Text>
@@ -205,7 +201,7 @@ export function StoresView() {
             >
               <AppPressable
                 onPress={() => setSelectedStoreId(store.id)}
-                className={`w-full rounded-3xl border p-4 shadow-sm ${selected ? 'border-green-200 bg-green-50/70' : 'border-slate-100 bg-white'}`}
+                className={`w-full rounded-3xl p-4 ${selected ? 'bg-green-50/70' : 'bg-white'}`} style={elevation.card}
               >
                 <View className="flex-row justify-between gap-3">
                   <View className="flex-row min-w-0 flex-1 items-start gap-3">
@@ -217,11 +213,11 @@ export function StoresView() {
                       <Text className="mt-1 text-xs font-medium leading-relaxed text-slate-500">{store.address}</Text>
                     </View>
                   </View>
-                  <View className="shrink-0 rounded-xl border border-slate-100 bg-white px-3 py-1.5">
+                  <View className="shrink-0 rounded-xl bg-white px-3 py-1.5" style={elevation.raised}>
                     <Text className="text-[10px] font-bold text-slate-500">{formatDistance(store.distanceKm)}</Text>
                   </View>
                 </View>
-                <View className="mt-4 flex-row items-center justify-between border-t border-slate-100 pt-3">
+                <View className="mt-4 flex-row items-center justify-between pt-3">
                   <View className="flex-row items-center gap-2">
                     <View className={`h-2 w-2 rounded-full ${store.active ? 'bg-green-500' : 'bg-slate-300'}`} />
                     <Text className={`text-[10px] font-bold uppercase tracking-widest ${store.active ? 'text-green-600' : 'text-slate-400'}`}>
@@ -240,7 +236,7 @@ export function StoresView() {
       </View>
 
       {stores.length === 0 && (
-        <View className="rounded-3xl border border-slate-100 bg-slate-50 p-6 items-center">
+        <View className="rounded-3xl bg-slate-50 p-6 items-center" style={elevation.card}>
           <Text className="text-sm font-bold text-slate-800">No Froo stores match that search.</Text>
           <Text className="mt-2 text-xs font-medium text-slate-500">Try Bucuresti, Ilfov, Ploiesti, or a street name.</Text>
         </View>

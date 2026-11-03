@@ -21,7 +21,7 @@ function ScanReticle() {
     <View pointerEvents="none" className="absolute inset-0 z-10 items-center justify-center">
       <View className="w-[70%] aspect-square max-w-[280px] relative">
         <View
-          className="absolute inset-0 rounded-[32px] border border-white/20"
+          className="absolute inset-0 rounded-[32px]"
           style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)' }}
         />
         <View className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-green-500 rounded-tl-[32px]" />
@@ -73,6 +73,8 @@ export function ScannerOverlay({ onClose }: { onClose: () => void }) {
           <BackdropBlur />
         </Animated.View>
         <AppPressable onPress={requestClose} style={StyleSheet.absoluteFill} />
+        {/* The whole sheet drags down to dismiss, not just the grabber. */}
+        <GestureDetector gesture={dragGesture}>
         <Animated.View
           style={[
             {
@@ -81,21 +83,18 @@ export function ScannerOverlay({ onClose }: { onClose: () => void }) {
               padding: 24,
               borderTopLeftRadius: 32,
               borderTopRightRadius: 32,
-              borderWidth: 1,
-              borderColor: '#f1f5f9',
               backgroundColor: '#ffffff',
               boxShadow: '0 25px 50px -12px rgba(15,23,42,0.25)',
             },
             surfaceAnimatedStyle,
           ]}
         >
-          <GestureDetector gesture={dragGesture}>
-            <View style={{ marginHorizontal: -24, paddingHorizontal: 24, paddingBottom: 12 }}>
+          <View style={{ marginHorizontal: -24, paddingHorizontal: 24, paddingBottom: 12 }}>
               <View style={{ alignSelf: 'center', marginBottom: 5 }}>
                 <SheetGrabber />
               </View>
             </View>
-          </GestureDetector>
+
 
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-xl font-bold text-slate-800">Scanner</Text>
@@ -127,6 +126,7 @@ export function ScannerOverlay({ onClose }: { onClose: () => void }) {
           </Text>
         </View>
         </Animated.View>
+        </GestureDetector>
       </View>
       </GestureHandlerRootView>
     </Modal>

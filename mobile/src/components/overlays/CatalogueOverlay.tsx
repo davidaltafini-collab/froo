@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Modal, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text as BaseText } from '../Text';
 import { Image as ExpoImage } from 'expo-image';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -10,7 +10,7 @@ import { AppPressable } from '../AppPressable';
 import { BackdropBlur } from '../BackdropBlur';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
 import { SheetGrabber, SHEET_GRABBER_TOP_GAP } from '../SheetGrabber';
-
+import { elevation } from '../../theme/elevation';
 function Text({ style, ...props }: React.ComponentProps<typeof BaseText>) {
   return <BaseText {...props} style={[style, { fontFamily: 'sans-serif' }]} />;
 }
@@ -26,6 +26,8 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
     dragGesture,
     surfaceAnimatedStyle,
     backdropAnimatedStyle,
+    contentGesture,
+    scrollProps,
   } = useSwipeDownSurface({ closedOffset: sheetHeight, onClosed: onClose });
 
   const handleAdd = (itemName: string) => {
@@ -79,8 +81,6 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
                 paddingTop: (SHEET_GRABBER_TOP_GAP * 2 + 13) * s,
                 paddingHorizontal: 24 * s,
                 paddingBottom: 16 * s,
-                borderBottomWidth: 1 * s,
-                borderBottomColor: '#f1f5f9',
                 zIndex: 10,
               }}
             >
@@ -110,8 +110,12 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
               <Animated.View
                 entering={FadeIn}
                 exiting={FadeOut}
-                className="absolute bg-slate-900 flex-row items-center justify-center"
                 style={{
+                  position: 'absolute',
+                  backgroundColor: '#0f172b',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   top: 96 * s,
                   left: 24 * s,
                   right: 24 * s,
@@ -130,8 +134,9 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
             </View>
           </GestureDetector>
 
-          <ScrollView
-            className="flex-1 bg-slate-50/50"
+          <GestureDetector gesture={contentGesture}>
+          <Animated.ScrollView {...scrollProps}
+            style={{ flex: 1, backgroundColor: 'rgba(248,250,252,0.5)' }}
             contentContainerStyle={{ padding: 24 * s, paddingBottom: 114 * s }}
             showsVerticalScrollIndicator={false}
           >
@@ -147,24 +152,20 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
                   {category.items.map((item) => (
                     <View
                       key={item.id}
-                      className="flex-row bg-white items-center shadow-sm"
-                      style={{
+                      className="flex-row bg-white items-center"
+                      style={[elevation.card, {
                         gap: 16 * s,
                         padding: 16 * s,
                         borderRadius: 16 * s,
-                        borderWidth: 1 * s,
-                        borderColor: '#f1f5f9',
-                      }}
+                      }]}
                     >
                       <View
                         className="overflow-hidden bg-slate-100"
-                        style={{
+                        style={[elevation.card, {
                           width: 64 * s,
                           height: 64 * s,
                           borderRadius: 12 * s,
-                          borderWidth: 1 * s,
-                          borderColor: '#f1f5f9',
-                        }}
+                        }]}
                       >
                         <ExpoImage source={{ uri: item.img }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
                       </View>
@@ -191,7 +192,7 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
                       <View style={{ alignItems: 'flex-end', gap: 8 * s }}>
                         <View
                           className="flex-row items-center bg-slate-50"
-                          style={{ height: 32 * s, borderRadius: 8 * s, borderWidth: 1 * s, borderColor: '#e2e8f0' }}
+                          style={[elevation.card, { height: 32 * s, borderRadius: 8 * s,  }]}
                         >
                           <AppPressable
                             onPress={() => updateQty(item.name, -1)}
@@ -227,7 +228,8 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
                 </View>
               </View>
             ))}
-          </ScrollView>
+          </Animated.ScrollView>
+          </GestureDetector>
         </Animated.View>
       </View>
       </GestureHandlerRootView>

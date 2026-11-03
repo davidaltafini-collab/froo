@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text } from '../Text';
 import { Image as ExpoImage } from 'expo-image';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
@@ -13,7 +13,7 @@ import type { RewardItem } from '../../types';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
 import { BISTRO, type BistroItem } from '../../data/bistro';
 import { imageSource, isCutout } from '../../theme/image';
-
+import { elevation } from '../../theme/elevation';
 const TIERS = [1500, 3000, 4500, 6000];
 const TIER_STICKY_HEADER_INDICES = TIERS.map((_, index) => index * 2);
 
@@ -39,6 +39,8 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
     requestClose,
     dragGesture,
     surfaceAnimatedStyle,
+    contentGesture,
+    scrollProps,
   } = useSwipeDownSurface({ closedOffset: windowHeight, onClosed: onClose, dismissDistanceRatio: 0.16 });
 
   React.useEffect(() => {
@@ -93,12 +95,10 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
 
   return (
     <Animated.View
-      style={[
+      style={[elevation.floating,
         StyleSheet.absoluteFill,
         {
           zIndex: 50,
-          borderWidth: 1,
-          borderColor: '#f1f5f9',
           borderRadius: 28 * designScale,
           overflow: 'hidden',
           backgroundColor: '#f8fafc',
@@ -139,7 +139,7 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
         </View>
       </GestureDetector>
       <View
-        className="bg-white items-center border-b border-slate-100"
+        className="bg-white items-center"
         style={{ paddingHorizontal: 24 * designScale, paddingVertical: 24 * designScale }}
       >
         <Text
@@ -181,8 +181,9 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
         </Animated.View>
       </View>
 
-      <ScrollView
-        className="flex-1"
+      <GestureDetector gesture={contentGesture}>
+      <Animated.ScrollView {...scrollProps}
+        style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 66 * designScale }}
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={TIER_STICKY_HEADER_INDICES}
@@ -190,7 +191,7 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
         {TIERS.flatMap((tier) => [
             <View
               key={`${tier}-header`}
-              className="bg-slate-50/95 border-b border-slate-100/50"
+              className="bg-slate-50/95"
               style={{
                 zIndex: 20,
                 paddingHorizontal: 24 * designScale,
@@ -250,14 +251,14 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                 return (
                   <View
                     key={item.name}
-                    className={`bg-white flex-row items-center border ${
-                      isLocked && !isRedeemed ? 'border-slate-100' : isActiveRedeemed ? 'bg-green-50/30 border-green-200' : 'border-slate-200'
+                    className={`bg-white flex-row items-center ${
+                      isLocked && !isRedeemed ? '' : isActiveRedeemed ? 'bg-green-50/30' : ''
                     }`}
-                    style={{
+                    style={[elevation.card, {
                       padding: 12 * designScale,
                       borderRadius: 24 * designScale,
                       gap: 16 * designScale,
-                    }}
+                    }]}
                   >
                     <View
                       className="relative"
@@ -291,14 +292,14 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                       )}
                       {isActiveRedeemed && (
                         <View
-                          className="absolute bg-green-500 items-center justify-center border-2 border-white"
-                          style={{
+                          className="absolute bg-green-500 items-center justify-center"
+                          style={[elevation.card, {
                             top: -8 * designScale,
                             right: -8 * designScale,
                             width: 32 * designScale,
                             height: 32 * designScale,
                             borderRadius: 16 * designScale,
-                          }}
+                          }]}
                         >
                           <Check size={16 * designScale} color="white" />
                         </View>
@@ -326,13 +327,13 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                           style={{ marginTop: 12 * designScale }}
                         >
                           <View
-                            className="flex-row items-center bg-green-100 border border-green-200"
-                            style={{
+                            className="flex-row items-center bg-green-100"
+                            style={[elevation.card, {
                               gap: 6 * designScale,
                               paddingHorizontal: 12 * designScale,
                               paddingVertical: 6 * designScale,
                               borderRadius: 12 * designScale,
-                            }}
+                            }]}
                           >
                             <Check size={12 * designScale} color="#15803d" />
                             <Text
@@ -371,13 +372,13 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
                         </View>
                       ) : isLocked ? (
                         <View
-                          className="self-start bg-slate-50 border border-slate-100"
-                          style={{
+                          className="self-start bg-slate-50"
+                          style={[elevation.card, {
                             marginTop: 12 * designScale,
                             paddingHorizontal: 12 * designScale,
                             paddingVertical: 6 * designScale,
                             borderRadius: 12 * designScale,
-                          }}
+                          }]}
                         >
                           <Text
                             className="font-black text-slate-400 uppercase"
@@ -429,7 +430,8 @@ export function RewardsOverlay({ onClose }: { onClose: () => void }) {
               })}
             </View>,
         ])}
-      </ScrollView>
+      </Animated.ScrollView>
+      </GestureDetector>
 
       {activeRedeemItem && (
         <RedeemFlow item={activeRedeemItem} userPoints={currentPoints} onConfirm={handleRedeemConfirm} onCancel={() => setActiveRedeemItem(null)} />

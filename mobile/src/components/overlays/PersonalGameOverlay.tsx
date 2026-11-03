@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Modal, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../Text';
 import { Image as ExpoImage } from 'expo-image';
 import Animated, {
@@ -19,6 +19,7 @@ import { ChevronRight, Flame, Gift, Leaf, Timer, Trophy, X } from 'lucide-react-
 import { GAMES } from '../games/registry';
 import type { GameDefinition, GameResult } from '../games/types';
 import { GameSessionOverlay } from './GameSessionOverlay';
+import type { GameRunSummary } from './GameResultSheet';
 import { ExtractionOverlay } from './ExtractionOverlay';
 import { useAppContext } from '../../context/AppContext';
 import { EXTRACTION_THRESHOLD } from '../../data/extractionPrizes';
@@ -29,7 +30,7 @@ import GamesHeaderIcon from '../../../assets/brand/games-header-icon.svg';
 import iconFruitMerge from '../../../assets/brand/icon-fruit-merge.png';
 import iconBrickBreaker from '../../../assets/brand/icon-brick-breaker.png';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
-
+import { elevation } from '../../theme/elevation';
 const MAX_TRIES = 3;
 const COOLDOWN_MS = 30 * 60 * 1000;
 const TRIES_KEY = 'frooGamesTriesLeft';
@@ -97,11 +98,11 @@ async function readHighScores(): Promise<Record<string, number>> {
 }
 
 export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () => void; onShowRewards: () => void }) {
-  const { registerGamePoints, gamePointsProgress, extractionsAvailable } = useAppContext();
+  const { registerGamePoints, gamePointsProgress, extractionsAvailable, activatePrize } = useAppContext();
   const { width, height } = useWindowDimensions();
   const shouldReduceMotion = useReducedMotion();
   const [showExtraction, setShowExtraction] = React.useState(false);
-  const { requestClose, dragGesture, surfaceAnimatedStyle } = useSwipeDownSurface({
+  const { requestClose, dragGesture, surfaceAnimatedStyle, contentGesture, scrollProps } = useSwipeDownSurface({
     closedOffset: height,
     onClosed: onClose,
     dismissDistanceRatio: 0.16,
@@ -114,6 +115,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
   ]);
 
   const [activeGame, setActiveGame] = React.useState<GameDefinition | null>(null);
+  const [runSummary, setRunSummary] = React.useState<GameRunSummary | null>(null);
   const [confetti, setConfetti] = React.useState<Confetto[]>([]);
   const [highScores, setHighScores] = React.useState<Record<string, number>>({});
   const [triesLeft, setTriesLeft] = React.useState(MAX_TRIES);
@@ -195,6 +197,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
     }
 
     const points = Math.max(1, Math.round(result.score / 10));
+    const progressTotal = gamePointsProgress + points;
     registerGamePoints(points);
 
     const newReward: GameReward = {
@@ -208,13 +211,19 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
 
     setRewards((prev) => [newReward, ...prev].slice(0, 10));
 
-    setTriesLeft((prev) => {
-      const next = prev - 1;
-      if (next <= 0) {
-        setCooldownEndsAt(Date.now() + COOLDOWN_MS);
-        return 0;
-      }
-      return next;
+    const nextTries = Math.max(0, triesLeft - 1);
+    setTriesLeft(nextTries);
+    if (nextTries === 0) setCooldownEndsAt(Date.now() + COOLDOWN_MS);
+
+    setRunSummary({
+      gameTitle: game.title,
+      score: result.score,
+      points,
+      isNewHighScore: result.isNewHighScore,
+      progressBefore: gamePointsProgress,
+      progressAfter: progressTotal % EXTRACTION_THRESHOLD,
+      dropUnlocked: progressTotal >= EXTRACTION_THRESHOLD || extractionsAvailable > 0,
+      triesLeft: nextTries,
     });
   };
 
@@ -224,12 +233,10 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
     <Modal transparent visible onRequestClose={requestClose} animationType="none" statusBarTranslucent>
       <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View
-        style={[
+        style={[elevation.floating,
           StyleSheet.absoluteFill,
           {
             overflow: 'hidden',
-            borderWidth: 1,
-            borderColor: '#f1f5f9',
             borderRadius: 28,
             backgroundColor: '#f8fafc',
           },
@@ -241,14 +248,14 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
       </View>
       <View style={{ position: 'relative' }}>
         <GestureDetector gesture={dragGesture}>
-          <View className="px-6 pt-12 pb-4 flex-row items-center justify-between bg-slate-50 border-b border-slate-100">
+          <View className="px-6 pt-12 pb-4 flex-row items-center justify-between bg-slate-50">
             <View className="flex-row items-center gap-3">
-              <View className="bg-white rounded-2xl items-center justify-center shadow-sm border border-slate-100" style={{ width: 53, height: 50 }}>
+              <View className="bg-white rounded-2xl items-center justify-center" style={[elevation.card, { width: 53, height: 50 }]}>
                 <GamesHeaderIcon width="100%" height="100%" />
               </View>
               <Text className="text-lg font-bold text-slate-800">Froo Games</Text>
             </View>
-            <AppPressable onPress={requestClose} className="w-10 h-10 bg-white rounded-full items-center justify-center border border-slate-100">
+            <AppPressable onPress={requestClose} className="w-10 h-10 bg-white rounded-full items-center justify-center" style={elevation.raised}>
               <X size={20} color="#64748b" />
             </AppPressable>
           </View>
@@ -288,7 +295,8 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
         />
       </Animated.View>
 
-      <ScrollView className="flex-1 bg-[#ebf4ee]" contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+      <GestureDetector gesture={contentGesture}>
+      <Animated.ScrollView {...scrollProps} style={{ flex: 1, backgroundColor: '#ebf4ee' }} contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-6 pb-2">
           <View className="flex-row items-center justify-between mb-3 px-1">
             <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest">Play a Game</Text>
@@ -309,8 +317,8 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
                 key={game.id}
                 onPress={() => canPlay && setActiveGame(game)}
                 disabled={!canPlay}
-                className="w-full bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm flex-row items-center gap-4"
-                style={{ opacity: canPlay ? 1 : 0.5, minHeight: game.id === 'fruit-merge' ? 119 : 105 }}
+                className="w-full bg-white rounded-[28px] p-5 flex-row items-center gap-4"
+                style={[elevation.card, { opacity: canPlay ? 1 : 0.5, minHeight: game.id === 'fruit-merge' ? 119 : 105 }]}
               >
                 <View className="w-14 h-14 bg-green-600 rounded-2xl items-center justify-center overflow-hidden">
                   <ExpoImage source={game.id === 'fruit-merge' ? iconFruitMerge : iconBrickBreaker} style={{ width: '100%', height: '100%' }} contentFit="contain" />
@@ -332,7 +340,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
           {extractionsAvailable > 0 ? (
             <AppPressable
               onPress={() => setShowExtraction(true)}
-              className="rounded-[28px] p-5 flex-row items-center gap-4 shadow-sm relative overflow-hidden"
+              className="rounded-[28px] p-5 flex-row items-center gap-4 relative overflow-hidden" style={elevation.card}
             >
               {/* Same loyalty-card gradient recipe, so the unlocked state reads as the same
                   brand family as the rest of the app instead of a generic dark UI kit card. */}
@@ -354,7 +362,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
               <ChevronRight size={20} color="#facc15" />
             </AppPressable>
           ) : (
-            <View className="bg-white rounded-[28px] p-5 border border-slate-100 shadow-sm">
+            <View className="bg-white rounded-[28px] p-5" style={elevation.card}>
               <View className="flex-row items-center justify-between mb-2">
                 <View className="flex-row items-center gap-2">
                   <Gift size={16} color="#94a3b8" />
@@ -374,19 +382,19 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
 
         <View className="px-6 gap-4 pb-8 pt-4" style={{ paddingTop: 17 }}>
           <View className="flex-row gap-4">
-            <View className="flex-1 bg-white rounded-[24px] p-5 border border-slate-100 items-center shadow-sm" style={{ minHeight: 126 }}>
+            <View className="flex-1 bg-white rounded-[24px] p-5 items-center" style={[elevation.card, { minHeight: 126 }]}>
               <Trophy size={24} color="#facc15" style={{ marginBottom: 8 }} />
               <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Best Score</Text>
               <Text className="text-2xl font-black text-slate-800">{bestScore.toLocaleString()}</Text>
             </View>
-            <View className="flex-1 bg-white rounded-[24px] p-5 border border-slate-100 items-center shadow-sm" style={{ minHeight: 126 }}>
+            <View className="flex-1 bg-white rounded-[24px] p-5 items-center" style={[elevation.card, { minHeight: 126 }]}>
               <Flame size={24} color="#fb923c" style={{ marginBottom: 8 }} />
               <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Current Rank</Text>
               <Text className="text-2xl font-black text-slate-800">#12</Text>
             </View>
           </View>
 
-          <View className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm mt-2">
+          <View className="bg-white rounded-[32px] p-6 mt-2" style={elevation.card}>
             <View className="flex-row justify-between items-center mb-6">
               <Text className="font-bold text-lg text-slate-800">Top Players</Text>
               <View className="flex-row items-center gap-1 bg-indigo-50 px-3 py-1.5 rounded-lg">
@@ -401,7 +409,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
                 { rank: 3, name: 'Alex W.', score: '5,100', isMe: false },
                 { rank: 4, name: 'Jess K.', score: '4,850', isMe: false },
               ].map((user, i) => (
-                <View key={i} className={`flex-row items-center justify-between p-4 rounded-2xl border ${user.isMe ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
+                <View key={i} className={`flex-row items-center justify-between p-4 rounded-2xl ${user.isMe ? 'bg-green-50' : 'bg-slate-50'}`} style={elevation.card}>
                   <View className="flex-row items-center gap-4">
                     <View
                       className={`w-8 h-8 rounded-full items-center justify-center ${
@@ -431,7 +439,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
             </View>
           </View>
 
-          <View className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm mt-2">
+          <View className="bg-white rounded-[32px] p-6 mt-2" style={elevation.card}>
             <View className="flex-row justify-between items-center mb-6">
               <Text className="font-bold text-lg text-slate-800">Recent Rewards</Text>
               <View className="flex-row items-center gap-1 bg-green-50 px-3 py-1.5 rounded-lg">
@@ -442,7 +450,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
 
             <View className="gap-3">
               {rewards.map((session) => (
-                <Animated.View key={session.id} entering={FadeIn} exiting={FadeOut} className="p-4 rounded-2xl border border-slate-100 bg-slate-50">
+                <Animated.View key={session.id} entering={FadeIn} exiting={FadeOut} style={[elevation.card, { padding: 16, borderRadius: 16, backgroundColor: '#f8fafc' }]}>
                   <View className="flex-row items-center justify-between mb-2">
                     <Text className="font-bold text-sm text-slate-800">{session.type}</Text>
                     <Text className="font-black text-green-600 bg-green-100/50 px-2 py-0.5 rounded-md">{session.reward}</Text>
@@ -466,16 +474,37 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
             </AppPressable>
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
+      </GestureDetector>
 
       {activeGame && (
         <GameSessionOverlay
           game={activeGame}
-          onExit={() => setActiveGame(null)}
+          summary={runSummary}
+          onExit={() => {
+            setRunSummary(null);
+            setActiveGame(null);
+          }}
           onGameOver={(result) => handleGameOver(activeGame, result)}
+          onPlayAgain={() => setRunSummary(null)}
+          onOpenDrop={() => {
+            setRunSummary(null);
+            setActiveGame(null);
+            setShowExtraction(true);
+          }}
         />
       )}
-      {showExtraction && <ExtractionOverlay onClose={() => setShowExtraction(false)} />}
+      {showExtraction && (
+        <ExtractionOverlay
+          onClose={() => setShowExtraction(false)}
+          onUseNow={(wonPrizeId) => {
+            // Close the games sheet first, then open the in-store QR for the prize on the main screen.
+            setShowExtraction(false);
+            requestClose();
+            setTimeout(() => activatePrize(wonPrizeId), 280);
+          }}
+        />
+      )}
       </Animated.View>
       </GestureHandlerRootView>
     </Modal>

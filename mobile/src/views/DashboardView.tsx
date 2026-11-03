@@ -30,7 +30,7 @@ import {
 
 import { OFFERS, TRANSACTIONS } from '../data/mockData';
 import { BISTRO_FEATURED, bistroPoints, formatLei, type BistroItem } from '../data/bistro';
-import { elevation } from '../theme/elevation';
+import { elevation, glow } from '../theme/elevation';
 import { ActionBtn } from '../components/SharedUI';
 import { AppPressable } from '../components/AppPressable';
 import { useAppContext } from '../context/AppContext';
@@ -190,6 +190,15 @@ function BistroCard({ item, s, onPress }: { item: BistroItem; s: number; onPress
         }}
       >
         <ExpoImage source={item.image} style={{ width: '92%', height: '92%' }} contentFit="contain" transition={0} />
+        {/* Points badge rides on the photo so the price below always has the full width. */}
+        <View
+          className="bg-white"
+          style={[elevation.raised, { position: 'absolute', top: 8 * s, right: 8 * s, paddingHorizontal: 7 * s, paddingVertical: 3 * s, borderRadius: 8 * s }]}
+        >
+          <Text className="font-bold text-green-700" style={{ fontSize: 10 * s, lineHeight: 14 * s }}>
+            +{bistroPoints(item)} pts
+          </Text>
+        </View>
       </View>
       <View style={{ paddingHorizontal: 4 * s, paddingTop: 10 * s, paddingBottom: 4 * s }}>
         <Text className="font-bold text-slate-800" numberOfLines={1} style={{ fontSize: 14 * s, lineHeight: 18 * s }}>
@@ -198,16 +207,9 @@ function BistroCard({ item, s, onPress }: { item: BistroItem; s: number; onPress
         <Text className="text-slate-500" numberOfLines={1} style={{ fontSize: 11 * s, lineHeight: 15 * s, marginTop: 2 * s }}>
           {item.tagline}
         </Text>
-        <View className="flex-row items-center justify-between" style={{ marginTop: 10 * s }}>
-          <Text className="font-black text-slate-900" style={{ fontSize: 13 * s, lineHeight: 17 * s }}>
-            {formatLei(item.price)}
-          </Text>
-          <View className="bg-green-50" style={{ paddingHorizontal: 6 * s, paddingVertical: 2 * s, borderRadius: 6 * s }}>
-            <Text className="font-bold text-green-700" style={{ fontSize: 10 * s, lineHeight: 14 * s }}>
-              +{bistroPoints(item)} pts
-            </Text>
-          </View>
-        </View>
+        <Text className="font-black text-slate-900" numberOfLines={1} style={{ fontSize: 14 * s, lineHeight: 18 * s, marginTop: 8 * s }}>
+          {formatLei(item.price)}
+        </Text>
       </View>
     </AppPressable>
   );
@@ -488,15 +490,13 @@ export function DashboardView() {
                   </View>
                   <LinearGradient
                     colors={['#fef08a', 'rgba(234,179,8,0.8)']}
-                    style={{
+                    style={[elevation.card, {
                       width: 40 * designScale,
                       height: 28 * designScale,
                       borderRadius: 4 * designScale,
                       justifyContent: 'space-evenly',
                       paddingHorizontal: 6 * designScale,
-                      borderWidth: 1,
-                      borderColor: 'rgba(253,224,71,0.5)',
-                    }}
+                    }]}
                   >
                     <View className="w-full h-[1px] bg-yellow-700/30" />
                     <View className="w-full h-[1px] bg-yellow-700/30" />
@@ -506,7 +506,7 @@ export function DashboardView() {
 
                 <AppPressable
                   onPress={() => setShowQR(true)}
-                  className="border border-white/20 overflow-hidden"
+                  className="overflow-hidden"
                   style={{
                     padding: 10 * designScale,
                     borderRadius: 14 * designScale,
@@ -520,7 +520,7 @@ export function DashboardView() {
                 </AppPressable>
               </Animated.View>
 
-              <Animated.View style={pointsDepthStyle} className="mt-auto pt-2">
+              <Animated.View style={[{ marginTop: 'auto', paddingTop: 8 }, pointsDepthStyle]}>
                 <View className="flex-row justify-between items-end mb-3">
                   <View>
                     <Text className="text-[10px] uppercase tracking-widest text-green-50/90 mb-1 font-bold">Points Balance</Text>
@@ -562,7 +562,7 @@ export function DashboardView() {
       {/* Quick Actions */}
       <View className="px-8 mt-5">
         <View
-          className="bg-white rounded-[32px] p-5 border border-slate-100 flex-row justify-around"
+          className="bg-white rounded-[32px] p-5 flex-row justify-around"
           style={{ boxShadow: '0 1px 2px rgba(15,23,42,0.05)' }}
         >
           <ActionBtn icon={Gift} label="Redeem" onClick={() => setShowRewards(true)} />
@@ -605,7 +605,7 @@ export function DashboardView() {
       {/* Daily Streak */}
       <View style={{ paddingHorizontal: 32 * designScale, marginTop: 13 * designScale }}>
         <View
-          className="bg-white border border-slate-100 relative overflow-hidden"
+          className="bg-white relative overflow-hidden"
           style={{
             height: 179 * designScale,
             padding: 20 * designScale,
@@ -623,15 +623,15 @@ export function DashboardView() {
             // (reads as a warm glow), but on the near-white claimed pill it just looked broken,
             // so it's dropped once claimed instead of trying to reshape it to match.
             className={`absolute top-0 right-0 z-30 items-center justify-center ${
-              claimed ? 'bg-slate-50' : 'bg-[#F29F05] shadow-md shadow-orange-200/70'
+              claimed ? 'bg-slate-50' : 'bg-[#F29F05]'
             }`}
-            style={{
+            style={[claimed ? elevation.well : glow('242, 159, 5', 0.45), {
               height: 46 * designScale,
               minWidth: 138 * designScale,
               borderTopRightRadius: 32 * designScale,
               borderBottomLeftRadius: 26 * designScale,
               paddingHorizontal: 20 * designScale,
-            }}
+            }]}
           >
             {claimed ? (
               <View className="flex-row items-center gap-1">
@@ -707,12 +707,12 @@ export function DashboardView() {
                   <View
                     className={`items-center justify-center ${
                       d.current && !claimed ? 'ring-4 ring-orange-50' : ''
-                    } ${isChecked ? 'bg-[#78C043]' : 'bg-slate-50 border border-slate-200'}`}
-                    style={{
+                    } ${isChecked ? 'bg-[#78C043]' : 'bg-slate-50'}`}
+                    style={[isChecked ? glow('120, 192, 67', 0.4) : elevation.well, {
                       width: 32 * designScale,
                       height: 32 * designScale,
                       borderRadius: 16 * designScale,
-                    }}
+                    }]}
                   >
                     {isChecked ? (
                       <FrogHandIcon width={20 * designScale} height={(20 / 1.314) * designScale} />
@@ -739,8 +739,8 @@ export function DashboardView() {
       <View style={{ paddingHorizontal: 32 * designScale, marginTop: 32 * designScale }}>
         <AppPressable
           onPress={() => setShowPersonalGame(true)}
-          className="bg-white shadow-sm border border-slate-100 relative overflow-hidden"
-          style={{ padding: 24 * designScale, borderRadius: 32 * designScale }}
+          className="bg-white relative overflow-hidden"
+          style={[elevation.card, { padding: 24 * designScale, borderRadius: 32 * designScale }]}
         >
           <GamesCardTexture />
 
@@ -800,8 +800,8 @@ export function DashboardView() {
               </View>
             </View>
             <View
-              className="bg-slate-50 border border-slate-100"
-              style={{ padding: 8 * designScale, borderRadius: 12 * designScale }}
+              className="bg-slate-50"
+              style={[elevation.card, { padding: 8 * designScale, borderRadius: 12 * designScale }]}
             >
               <ChevronRight size={20 * designScale} color="#94a3b8" />
             </View>
@@ -838,14 +838,14 @@ export function DashboardView() {
           {OFFERS.filter((offer) => offer.title !== 'Froo Bistro').slice(0, 2).map((offer, i) => (
             <View
               key={offer.id}
-              style={{
+              style={[elevation.card, {
                 width: '46%',
                 flexGrow: 1,
                 padding: 20 * designScale,
                 borderRadius: 24 * designScale,
                 gap: 12 * designScale,
-              }}
-              className={`border shadow-sm ${i === 0 ? 'bg-green-50 border-green-100' : 'bg-white border-slate-100'}`}
+              }]}
+              className={`${i === 0 ? 'bg-green-50' : 'bg-white'}`}
             >
               <View
                 className={`items-center justify-center ${i === 0 ? 'bg-white' : 'bg-green-100'}`}
@@ -903,8 +903,8 @@ export function DashboardView() {
         }}
       >
         <View
-          className="bg-white shadow-sm border border-slate-100"
-          style={{ borderRadius: 24 * designScale, padding: 24 * designScale }}
+          className="bg-white"
+          style={[elevation.card, { borderRadius: 24 * designScale, padding: 24 * designScale }]}
         >
           <View
             className="flex-row items-center justify-between"
@@ -930,12 +930,12 @@ export function DashboardView() {
               <View key={tx.id} className="flex-row justify-between items-center">
                 <View className="flex-row items-center" style={{ gap: 12 * designScale }}>
                   <View
-                    className="bg-slate-50 border border-slate-100 items-center justify-center"
-                    style={{
+                    className="bg-slate-50 items-center justify-center"
+                    style={[elevation.card, {
                       width: 40 * designScale,
                       height: 40 * designScale,
                       borderRadius: 12 * designScale,
-                    }}
+                    }]}
                   >
                     <ShoppingBag size={20 * designScale} color="#94a3b8" />
                   </View>

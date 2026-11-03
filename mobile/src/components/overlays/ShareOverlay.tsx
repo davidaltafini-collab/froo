@@ -9,7 +9,7 @@ import { AppPressable } from '../AppPressable';
 import { BackdropBlur } from '../BackdropBlur';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
 import { SheetGrabber } from '../SheetGrabber';
-
+import { elevation } from '../../theme/elevation';
 interface FamilyMember {
   id: number;
   name: string;
@@ -51,6 +51,8 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.6)' }]} />
         </Animated.View>
         <AppPressable onPress={requestClose} style={StyleSheet.absoluteFill} />
+        {/* The whole sheet drags down to dismiss, not just the grabber. */}
+        <GestureDetector gesture={dragGesture}>
         <Animated.View
           style={[
             {
@@ -71,13 +73,12 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
             surfaceAnimatedStyle,
           ]}
         >
-          <GestureDetector gesture={dragGesture}>
-            <View style={{ marginHorizontal: -24 * s, paddingHorizontal: 24 * s, paddingBottom: 12 * s }}>
+          <View style={{ marginHorizontal: -24 * s, paddingHorizontal: 24 * s, paddingBottom: 12 * s }}>
               <View style={{ marginBottom: 5 * s, alignSelf: 'center' }}>
                 <SheetGrabber scale={s} />
               </View>
             </View>
-          </GestureDetector>
+
           <View className="flex-row items-center justify-between" style={{ marginBottom: 24 * s }}>
             <Text
               className="font-bold text-slate-900"
@@ -107,7 +108,7 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
                 <View
                   key={member.id}
                   className="flex-row items-center justify-between bg-slate-50"
-                  style={{ padding: 12 * s, borderRadius: 16 * s, borderWidth: 1 * s, borderColor: '#f1f5f9' }}
+                  style={[elevation.card, { padding: 12 * s, borderRadius: 16 * s,  }]}
                 >
                   <View className="flex-row items-center" style={{ gap: 12 * s }}>
                     <ExpoImage
@@ -126,15 +127,13 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
                   </View>
                   <AppPressable
                     onPress={() => setSharedWith(member.id)}
-                    className="shadow-sm"
-                    style={{
+
+                    style={[elevation.card, {
                       paddingHorizontal: 16 * s,
                       paddingVertical: 8 * s,
                       borderRadius: 12 * s,
-                      borderWidth: isShared ? 0 : 1 * s,
-                      borderColor: '#e2e8f0',
                       backgroundColor: isShared ? '#dcfce7' : '#ffffff',
-                    }}
+                    }]}
                   >
                     <Text
                       className="font-bold uppercase"
@@ -162,11 +161,11 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
           <View className="flex-row" style={{ gap: 16 * s, marginBottom: 16 * s }}>
             <AppPressable
               className="flex-1 bg-slate-50 items-center justify-center"
-              style={{ padding: 16 * s, borderRadius: 16 * s, borderWidth: 1 * s, borderColor: '#f1f5f9', gap: 12 * s }}
+              style={[elevation.card, { padding: 16 * s, borderRadius: 16 * s, gap: 12 * s }]}
             >
               <View
-                className="bg-white items-center justify-center shadow-sm"
-                style={{ width: 48 * s, height: 48 * s, borderRadius: 24 * s }}
+                className="bg-white items-center justify-center"
+                style={[elevation.card, { width: 48 * s, height: 48 * s, borderRadius: 24 * s }]}
               >
                 <Share2 size={20 * s} color="#475569" />
               </View>
@@ -176,11 +175,11 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
             </AppPressable>
             <AppPressable
               className="flex-1 bg-slate-50 items-center justify-center"
-              style={{ padding: 16 * s, borderRadius: 16 * s, borderWidth: 1 * s, borderColor: '#f1f5f9', gap: 12 * s }}
+              style={[elevation.card, { padding: 16 * s, borderRadius: 16 * s, gap: 12 * s }]}
             >
               <View
-                className="bg-white items-center justify-center shadow-sm"
-                style={{ width: 48 * s, height: 48 * s, borderRadius: 24 * s }}
+                className="bg-white items-center justify-center"
+                style={[elevation.card, { width: 48 * s, height: 48 * s, borderRadius: 24 * s }]}
               >
                 <QrCode size={20 * s} color="#475569" />
               </View>
@@ -190,6 +189,7 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
             </AppPressable>
           </View>
         </Animated.View>
+        </GestureDetector>
       </View>
       </GestureHandlerRootView>
     </Modal>

@@ -15,7 +15,7 @@ export const GAMES: GameDefinition[] = [
   {
     id: 'fruit-merge',
     title: 'Froo Merge',
-    tagline: 'Combine matching produce to grow the big one.',
+    tagline: 'Merge matching bistro bites into bigger ones.',
     icon: Citrus,
     highScoreKey: FRUIT_MERGE_HIGH_SCORE_KEY,
     Component: FruitMergeGame,

@@ -16,7 +16,7 @@ import { CatalogueOverlay, QtyPickerOverlay, ShareOverlay } from '../components/
 import { AppPressable } from '../components/AppPressable';
 import type { ShoppingListHistoryEntry, ShoppingListItem } from '../types';
 import mascotFloatImg from '../../assets/brand/mascot-list-float.png';
-
+import { elevation, glow } from '../theme/elevation';
 function Text({ style, ...props }: React.ComponentProps<typeof BaseText>) {
   return <BaseText {...props} style={[style, { fontFamily: 'sans-serif' }]} />;
 }
@@ -65,7 +65,7 @@ export function ListView() {
       { id: 2, text: 'Almond Milk (Unsweetened)', checked: true, qty: 2 },
       { id: 3, text: 'Sourdough Bread', checked: false, qty: 1 },
       { id: 4, text: 'Avocados (3 pack)', checked: false, qty: 1 },
-      { id: 5, text: 'Free-range Eggs (Dozen)', checked: true, qty: 1 },
+      { id: 5, text: 'Free-range Eggs (10 pack)', checked: true, qty: 1 },
     ],
     family: [
       { id: 6, text: 'Paper Towels', checked: false, qty: 1 },
@@ -180,31 +180,27 @@ export function ListView() {
         >
           <AppPressable
             onPress={() => setActiveList('history')}
-            className="shrink-0 items-center justify-center shadow-sm"
-            style={{
+            className="shrink-0 items-center justify-center"
+            style={[elevation.card, {
               width: 40 * s,
               height: 40 * s,
               borderRadius: 16 * s,
-              borderWidth: activeList === 'history' ? 0 : 1 * s,
-              borderColor: '#f1f5f9',
               backgroundColor: activeList === 'history' ? '#1e293b' : '#ffffff',
-            }}
+            }]}
           >
             <Clock size={16 * s} color={activeList === 'history' ? '#ffffff' : '#475569'} />
           </AppPressable>
           <View style={{ width: 1 * s, height: 40 * s, backgroundColor: '#e2e8f0' }} />
           <AppPressable
             onPress={() => setActiveList('personal')}
-            className="shadow-sm flex-row items-center"
-            style={{
+            className="flex-row items-center"
+            style={[elevation.card, {
               gap: 8 * s,
               paddingHorizontal: 20 * s,
               paddingVertical: 10 * s,
               borderRadius: 16 * s,
-              borderWidth: activeList === 'personal' ? 0 : 1 * s,
-              borderColor: '#f1f5f9',
               backgroundColor: activeList === 'personal' ? '#16a34a' : '#ffffff',
-            }}
+            }]}
           >
             <User size={14 * s} color={activeList === 'personal' ? '#ffffff' : '#475569'} />
             <Text
@@ -221,16 +217,14 @@ export function ListView() {
           </AppPressable>
           <AppPressable
             onPress={() => setActiveList('family')}
-            className="shadow-sm flex-row items-center"
-            style={{
+            className="flex-row items-center"
+            style={[elevation.card, {
               gap: 8 * s,
               paddingHorizontal: 20 * s,
               paddingVertical: 10 * s,
               borderRadius: 16 * s,
-              borderWidth: activeList === 'family' ? 0 : 1 * s,
-              borderColor: '#f1f5f9',
               backgroundColor: activeList === 'family' ? '#16a34a' : '#ffffff',
-            }}
+            }]}
           >
             <Users size={14 * s} color={activeList === 'family' ? '#ffffff' : '#475569'} />
             <Text
@@ -251,8 +245,8 @@ export function ListView() {
           <>
             <View className="flex-row" style={{ gap: 12 * s, marginBottom: 16 * s, marginTop: 8 * s }}>
               <View
-                className="flex-1 flex-row items-center bg-white shadow-sm overflow-hidden"
-                style={{ borderWidth: 1 * s, borderColor: '#f1f5f9', borderRadius: 16 * s }}
+                className="flex-1 flex-row items-center bg-white overflow-hidden"
+                style={[elevation.card, { borderRadius: 16 * s }]}
               >
                 <TextInput
                   placeholder={`Add an item to ${activeList}...`}
@@ -273,17 +267,15 @@ export function ListView() {
                     lineHeight: 20 * s,
                   }}
                 />
-                <View style={{ paddingHorizontal: 12 * s, borderLeftWidth: 1 * s, borderLeftColor: '#f1f5f9' }}>
+                <View style={{ paddingHorizontal: 12 * s }}>
                   <AppPressable
                     onPress={() => setShowQtyModal(true)}
-                    style={{
+                    style={[elevation.card, {
                       paddingHorizontal: 12 * s,
                       paddingVertical: 6 * s,
                       backgroundColor: '#f8fafc',
-                      borderWidth: 1 * s,
-                      borderColor: '#e2e8f0',
                       borderRadius: 12 * s,
-                    }}
+                    }]}
                   >
                     <Text
                       className="text-slate-700 font-bold"
@@ -301,8 +293,8 @@ export function ListView() {
                     setNewItemQty(1);
                   }
                 }}
-                className="bg-green-600 items-center justify-center shadow-lg shadow-green-200"
-                style={{ width: 56 * s, height: 56 * s, borderRadius: 16 * s }}
+                className="bg-green-600 items-center justify-center"
+                style={[glow('0, 166, 62'), { width: 56 * s, height: 56 * s, borderRadius: 16 * s }]}
               >
                 <Plus size={24 * s} color="#ffffff" />
               </AppPressable>
@@ -311,15 +303,12 @@ export function ListView() {
             <AppPressable
               onPress={() => setShowCatalogue(true)}
               className="w-full bg-slate-50 flex-row items-center justify-center"
-              style={{
+              style={[elevation.card, {
                 marginBottom: 32 * s,
                 paddingVertical: 16 * s,
-                borderWidth: 1 * s,
-                borderColor: '#e2e8f0',
-                borderStyle: 'dashed',
                 borderRadius: 16 * s,
                 gap: 8 * s,
-              }}
+              }]}
             >
               <ShoppingBag size={16 * s} color="#475569" />
               <Text className="font-bold text-slate-600" style={{ fontSize: 14 * s, lineHeight: 20 * s }}>
@@ -342,22 +331,19 @@ export function ListView() {
                       gap: 16 * s,
                       padding: 16 * s,
                       borderRadius: 24 * s,
-                      borderWidth: 1 * s,
-                      borderColor: '#f1f5f9',
                       backgroundColor: item.checked ? '#f8fafc' : '#ffffff',
-                      boxShadow: item.checked ? 'none' : '0 1px 2px rgba(15,23,42,0.05)',
+                      // Done rows sink into the page; open rows sit raised on it.
+                      boxShadow: item.checked ? elevation.well.boxShadow : elevation.card.boxShadow,
                     }}
                   >
                     <View
                       className="items-center justify-center"
-                      style={{
+                      style={[item.checked ? glow('34, 197, 94', 0.45) : elevation.well, {
                         width: 28 * s,
                         height: 28 * s,
                         borderRadius: 12 * s,
-                        borderWidth: 2 * s,
-                        borderColor: item.checked ? '#22c55e' : '#e2e8f0',
-                        backgroundColor: item.checked ? '#22c55e' : '#ffffff',
-                      }}
+                        backgroundColor: item.checked ? '#22c55e' : '#f1f5f9',
+                      }]}
                     >
                       {item.checked ? <Check size={16 * s} color="#ffffff" /> : null}
                     </View>
@@ -387,13 +373,10 @@ export function ListView() {
               {currentItems.length === 0 ? (
                 <View
                   className="items-center bg-slate-50"
-                  style={{
+                  style={[elevation.card, {
                     padding: 32 * s,
                     borderRadius: 32 * s,
-                    borderWidth: 1 * s,
-                    borderColor: '#f1f5f9',
-                    borderStyle: 'dashed',
-                  }}
+                  }]}
                 >
                   <Text className="font-bold text-slate-400" style={{ fontSize: 14 * s, lineHeight: 20 * s }}>
                     List is empty
@@ -404,8 +387,8 @@ export function ListView() {
               {currentItems.length > 0 ? (
                 <AppPressable
                   onPress={handleDone}
-                  className="w-full bg-green-600 flex-row items-center justify-center shadow-lg shadow-green-200"
-                  style={{ marginTop: 24 * s, paddingVertical: 16 * s, borderRadius: 16 * s, gap: 8 * s }}
+                  className="w-full bg-green-600 flex-row items-center justify-center"
+                  style={[glow('0, 166, 62'), { marginTop: 24 * s, paddingVertical: 16 * s, borderRadius: 16 * s, gap: 8 * s }]}
                 >
                   <Check size={20 * s} color="#ffffff" />
                   <Text className="text-white font-bold" style={{ fontSize: 14 * s, lineHeight: 20 * s }}>
@@ -420,8 +403,8 @@ export function ListView() {
             {history.map((h) => (
               <View
                 key={h.id}
-                className="bg-white shadow-sm"
-                style={{ borderWidth: 1 * s, borderColor: '#f1f5f9', borderRadius: 24 * s, padding: 20 * s }}
+                className="bg-white"
+                style={[elevation.card, { borderRadius: 24 * s, padding: 20 * s }]}
               >
                 <View className="flex-row items-center justify-between" style={{ marginBottom: 16 * s }}>
                   <View className="flex-row items-center" style={{ gap: 8 * s }}>
@@ -449,14 +432,12 @@ export function ListView() {
                     <View
                       key={i}
                       className="flex-row items-center bg-slate-50"
-                      style={{
+                      style={[elevation.card, {
                         gap: 8 * s,
-                        borderWidth: 1 * s,
-                        borderColor: '#f1f5f9',
                         borderRadius: 12 * s,
                         paddingHorizontal: 14 * s,
                         paddingVertical: 6 * s,
-                      }}
+                      }]}
                     >
                       <Text className="font-bold text-slate-600" style={{ fontSize: 12 * s, lineHeight: 16 * s }}>
                         {hi.text}
@@ -474,14 +455,11 @@ export function ListView() {
             {history.length === 0 ? (
               <View
                 className="items-center bg-slate-50"
-                style={{
+                style={[elevation.card, {
                   padding: 32 * s,
                   borderRadius: 32 * s,
-                  borderWidth: 1 * s,
-                  borderColor: '#f1f5f9',
-                  borderStyle: 'dashed',
                   marginTop: 16 * s,
-                }}
+                }]}
               >
                 <Text className="font-bold text-slate-400" style={{ fontSize: 14 * s, lineHeight: 20 * s }}>
                   No history yet

@@ -1,12 +1,16 @@
 import { Modal, ScrollView, View } from 'react-native';
+import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text } from '../Text';
-import Animated, { Easing, SlideInRight, SlideOutRight } from 'react-native-reanimated';
+import Animated, { Easing, SlideInRight } from 'react-native-reanimated';
 import { X } from 'lucide-react-native';
 import { useAppContext } from '../../context/AppContext';
 import { AppPressable } from '../AppPressable';
+import { elevation } from '../../theme/elevation';
+import { useSwipeBackPage } from '../useSwipeBackPage';
 
 export function NotificationsOverlay({ onClose }: { onClose: () => void }) {
   const { notifications, setNotifications } = useAppContext();
+  const swipeBack = useSwipeBackPage(onClose);
 
   const markAllRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -14,19 +18,23 @@ export function NotificationsOverlay({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal transparent visible onRequestClose={onClose} animationType="none" statusBarTranslucent>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <Animated.View
         entering={SlideInRight.duration(260).easing(Easing.bezier(0.32, 0.72, 0, 1))}
-        exiting={SlideOutRight.duration(210).easing(Easing.bezier(0.32, 0, 0.67, 0))}
-        style={{
+        exiting={swipeBack.exiting}
+        style={{ flex: 1 }}
+      >
+      {/* Swipe right anywhere to go back, like a pushed iOS page. */}
+      <GestureDetector gesture={swipeBack.gesture}>
+      <Animated.View
+        style={[elevation.floating, {
           flex: 1,
-          borderWidth: 1,
-          borderColor: '#f1f5f9',
           borderRadius: 28,
           overflow: 'hidden',
           backgroundColor: '#f8fafc',
-        }}
+        }, swipeBack.pageStyle]}
       >
-      <View className="px-6 pt-12 pb-4 flex-row justify-between items-center bg-white border-b border-slate-100">
+      <View className="px-6 pt-12 pb-4 flex-row justify-between items-center bg-white">
         <Text className="font-bold text-slate-800 tracking-wide text-lg">Notifications</Text>
         <View className="flex-row items-center gap-3">
           <AppPressable onPress={markAllRead}>
@@ -44,7 +52,7 @@ export function NotificationsOverlay({ onClose }: { onClose: () => void }) {
           return (
             <View
               key={n.id}
-              className={`p-4 rounded-[24px] border flex-row gap-4 ${n.unread ? 'bg-white border-green-100 shadow-sm' : 'bg-slate-50/50 border-slate-100 opacity-80'}`}
+              className={`p-4 rounded-[24px] flex-row gap-4 ${n.unread ? 'bg-white' : 'bg-slate-50/50 opacity-80'}`} style={elevation.card}
             >
               <View className={`w-12 h-12 rounded-full items-center justify-center ${n.unread ? 'bg-green-100' : 'bg-slate-200'}`}>
                 <Icon size={24} color={n.unread ? '#16a34a' : '#64748b'} />
@@ -62,6 +70,9 @@ export function NotificationsOverlay({ onClose }: { onClose: () => void }) {
         })}
       </ScrollView>
       </Animated.View>
+      </GestureDetector>
+      </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

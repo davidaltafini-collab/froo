@@ -64,6 +64,8 @@ export function RedeemFlow({ item, onConfirm, onCancel }: { item: RewardItem; us
         <BackdropBlur />
       </Animated.View>
       <AppPressable onPress={requestClose} style={StyleSheet.absoluteFill} />
+      {/* The whole sheet drags down to dismiss, not just the grabber. */}
+      <GestureDetector gesture={dragGesture}>
       <Animated.View
         style={[
           {
@@ -82,15 +84,14 @@ export function RedeemFlow({ item, onConfirm, onCancel }: { item: RewardItem; us
           surfaceAnimatedStyle,
         ]}
       >
-      <GestureDetector gesture={dragGesture}>
-        <View style={{ width: '100%', alignItems: 'center', paddingBottom: 20 * designScale }}>
+      <View style={{ width: '100%', alignItems: 'center', paddingBottom: 20 * designScale }}>
           <View
             style={{ marginBottom: 5 * designScale }}
           >
             <SheetGrabber scale={designScale} />
           </View>
         </View>
-      </GestureDetector>
+
 
       {step === 'confirm' ? (
         <>
@@ -215,6 +216,7 @@ export function RedeemFlow({ item, onConfirm, onCancel }: { item: RewardItem; us
         </View>
       )}
       </Animated.View>
+      </GestureDetector>
     </Animated.View>
   );
 }
