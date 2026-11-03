@@ -5,5 +5,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules", "dist-export"]
+  "exclude": ["node_modules", "dist", "dist-export", "ios", "android"]
 }
