@@ -53,7 +53,7 @@ export function CouponsView() {
              <Gift className="w-6 h-6" />
            </div>
            <div>
-             <p className="text-[10px] font-bold uppercase tracking-widest text-green-100 mb-0.5">FreshRewards</p>
+             <p className="text-[10px] font-bold uppercase tracking-widest text-green-100 mb-0.5">FrooRewards</p>
              <h3 className="font-bold text-lg leading-tight">Redeem Points</h3>
            </div>
         </div>
@@ -110,7 +110,7 @@ export function CouponsView() {
                 <div>
                   <p className="font-bold text-slate-800 uppercase text-[10px] tracking-wide">{offer.title}</p>
                   <p className="text-sm font-bold text-slate-800 mt-0.5">{offer.desc}</p>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1">Exp: Oct 24 &bull; Use in-store</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1">Exp: Nov 30 &bull; Use in-store</p>
                 </div>
               </div>
             </div>
@@ -182,7 +182,7 @@ export function CouponsView() {
                     <div className="w-1 bg-slate-800 h-full"></div><div className="w-3 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div><div className="w-0.5 bg-slate-800 h-full"></div><div className="w-4 bg-slate-800 h-full"></div><div className="w-2 bg-slate-800 h-full"></div><div className="w-1.5 bg-slate-800 h-full"></div><div className="w-2 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div><div className="w-3 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div><div className="w-2 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div><div className="w-2 bg-slate-800 h-full"></div><div className="w-4 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div><div className="w-2 bg-slate-800 h-full"></div><div className="w-1 bg-slate-800 h-full"></div>
                   </div>
                 </div>
-                <p className="text-[10px] font-mono font-bold tracking-widest text-slate-400 mt-3">CPN-2023-{selectedCoupon.id}9</p>
+                <p className="text-[10px] font-mono font-bold tracking-widest text-slate-400 mt-3">CPN-2026-{selectedCoupon.id}9</p>
               </div>
 
               {/* Usage Instructions */}
@@ -204,7 +204,7 @@ export function CouponsView() {
                 <div className="pt-4 border-t border-slate-100">
                   <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Terms & Conditions</h4>
                   <p className="text-[10px] text-slate-500 leading-relaxed">
-                    Offer valid until Oct 24, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all FreshLeaf participating locations.
+                    Offer valid until Nov 30, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all froo participating locations.
                   </p>
                 </div>
               </div>

@@ -24,6 +24,7 @@ import { ProfileMenuRow } from '../SharedUI';
 import { AppPressable } from '../AppPressable';
 import type { ProfileView } from '../../types';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
+import UserAvatar from '../../../assets/brand/avatar-sarah.svg';
 
 function Toggle({ on }: { on: boolean }) {
   return (
@@ -102,11 +103,11 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
             <ScrollView className="flex-1" contentContainerStyle={{ padding: 24, gap: 24 }} showsVerticalScrollIndicator={false}>
               <View className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex-row items-center gap-5">
                 <View className="w-20 h-20 rounded-2xl bg-slate-200 border-4 border-green-50 items-center justify-center overflow-hidden">
-                  <ExpoImage source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                  <UserAvatar width="100%" height="100%" />
                 </View>
                 <View className="flex-1">
                   <Text className="text-xl font-bold text-slate-800">Necula David</Text>
-                  <Text className="text-sm text-slate-500 mt-1">sarah.jenkins@gmail.com</Text>
+                  <Text className="text-sm text-slate-500 mt-1">david.necula@gmail.com</Text>
                   <AppPressable onPress={() => setActiveView('edit_profile')} className="mt-3 self-start bg-green-50 px-4 py-2 rounded-xl">
                     <Text className="text-[10px] font-bold uppercase tracking-widest text-green-700">Edit Profile</Text>
                   </AppPressable>
@@ -133,13 +134,13 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
                 <View className="flex-row items-center gap-3">
                   <View className="flex-row">
                     <View className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden -mr-3">
-                      <ExpoImage source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Tom' }} style={{ width: '100%', height: '100%' }} />
+                      <ExpoImage source={{ uri: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&q=80&fit=crop' }} contentFit="cover" style={{ width: '100%', height: '100%' }} />
                     </View>
                     <View className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                      <ExpoImage source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma' }} style={{ width: '100%', height: '100%' }} />
+                      <ExpoImage source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&q=80&fit=crop' }} contentFit="cover" style={{ width: '100%', height: '100%' }} />
                     </View>
                   </View>
-                  <Text className="text-xs font-medium text-slate-500 flex-1">Tom and Emma are in your family.</Text>
+                  <Text className="text-xs font-medium text-slate-500 flex-1">Sarah and Emma are in your family.</Text>
                 </View>
 
                 <View className="mt-5 pt-5 border-t border-slate-100 gap-4">
@@ -248,7 +249,7 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
                 <View className="items-center mb-6">
                   <View>
                     <View className="w-24 h-24 rounded-2xl bg-slate-200 border-4 border-green-50 items-center justify-center overflow-hidden">
-                      <ExpoImage source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                      <UserAvatar width="100%" height="100%" />
                     </View>
                     <AppPressable className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-600 rounded-full items-center justify-center border-2 border-white">
                       <Plus size={16} color="white" />
@@ -263,11 +264,11 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
                   </View>
                   <View>
                     <Text className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-4 mb-2">Email Address</Text>
-                    <TextInput defaultValue="sarah.jenkins@gmail.com" keyboardType="email-address" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800" />
+                    <TextInput defaultValue="david.necula@gmail.com" keyboardType="email-address" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800" />
                   </View>
                   <View>
                     <Text className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-4 mb-2">Phone Number</Text>
-                    <TextInput defaultValue="(555) 123-4567" keyboardType="phone-pad" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800" />
+                    <TextInput defaultValue="+40 712 345 678" keyboardType="phone-pad" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800" />
                   </View>
 
                   <AppPressable onPress={() => setActiveView('main')} className="w-full mt-4 bg-green-600 rounded-2xl py-4 items-center shadow-md shadow-green-200">

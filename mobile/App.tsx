@@ -321,7 +321,9 @@ function AppShell() {
       >
         <AppPressable
           onPress={() => { setProfileInitialView('main'); setShowProfile(true); }}
-          style={{ position: 'absolute', left: 34 * shellScale, top: 0, width: 86 * shellScale, alignItems: 'center', gap: 4 * shellScale }}
+          // 112 wide (centred on the same x as the original 86-wide slot) so the full name never
+          // ellipsizes when Android measures the bold face slightly wider than the web reference.
+          style={{ position: 'absolute', left: 21 * shellScale, top: 0, width: 112 * shellScale, alignItems: 'center', gap: 4 * shellScale }}
         >
           <View
             className="bg-slate-200 border-green-500 items-center justify-center overflow-hidden"

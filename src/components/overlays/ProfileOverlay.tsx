@@ -4,6 +4,7 @@ import { ChevronRight, X, Users, Plus, ShoppingBag, Award, Gift, CreditCard, Set
 import { ProfileMenuRow } from '../SharedUI';
 import type { ProfileView } from '../../types';
 import { useVerticalDismissDrag } from '../../hooks/useVerticalDismissDrag';
+import UserAvatar from '../../assets/avatar-sarah.svg';
 
 export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () => void, initialView?: ProfileView }) {
   const [activeView, setActiveView] = React.useState<ProfileView>(initialView);
@@ -60,11 +61,11 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
               {/* Profile Header */}
               <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex items-center gap-5">
                 <div className="w-20 h-20 rounded-2xl bg-slate-200 border-4 border-green-50 flex items-center justify-center overflow-hidden shrink-0">
-                   <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah`} alt="Necula David" className="w-full h-full object-cover" />
+                   <img src={UserAvatar} alt="Necula David" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">Necula David</h3>
-                  <p className="text-sm text-slate-500 mt-1">sarah.jenkins@gmail.com</p>
+                  <p className="text-sm text-slate-500 mt-1">david.necula@gmail.com</p>
                   <button
                     onClick={() => setActiveView('edit_profile')}
                     className="mt-3 text-[10px] font-bold uppercase tracking-widest text-green-700 bg-green-50 px-4 py-2 rounded-xl hover:bg-green-100 transition-colors"
@@ -97,10 +98,10 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
 
                 <div className="flex items-center gap-3 mt-4 relative z-10">
                   <div className="flex -space-x-3">
-                    <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tom" alt="Tom" /></div>
-                    <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emma" alt="Emma" /></div>
+                    <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&q=80&fit=crop" alt="Sarah" className="w-full h-full object-cover" /></div>
+                    <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&q=80&fit=crop" alt="Emma" className="w-full h-full object-cover" /></div>
                   </div>
-                  <p className="text-xs font-medium text-slate-500 flex-1">Tom and Emma are in your family.</p>
+                  <p className="text-xs font-medium text-slate-500 flex-1">Sarah and Emma are in your family.</p>
                 </div>
 
                 <div className="mt-5 pt-5 border-t border-slate-100 space-y-4 relative z-10">
@@ -206,7 +207,7 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
                 <div className="flex justify-center mb-6">
                   <div className="relative">
                     <div className="w-24 h-24 rounded-2xl bg-slate-200 border-4 border-green-50 flex items-center justify-center overflow-hidden">
-                       <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah`} alt="Necula David" className="w-full h-full object-cover" />
+                       <img src={UserAvatar} alt="Necula David" className="w-full h-full object-cover" />
                     </div>
                     <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white shadow-md border-2 border-white hover:bg-green-700">
                       <Plus className="w-4 h-4" />
@@ -221,11 +222,11 @@ export function ProfileOverlay({ onClose, initialView = 'main' }: { onClose: () 
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-4 mb-2 block">Email Address</label>
-                    <input type="email" defaultValue="sarah.jenkins@gmail.com" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none focus:border-green-500 transition-colors" />
+                    <input type="email" defaultValue="david.necula@gmail.com" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none focus:border-green-500 transition-colors" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-4 mb-2 block">Phone Number</label>
-                    <input type="tel" defaultValue="(555) 123-4567" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none focus:border-green-500 transition-colors" />
+                    <input type="tel" defaultValue="+40 712 345 678" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 outline-none focus:border-green-500 transition-colors" />
                   </div>
 
                   <button className="w-full mt-4 bg-green-600 text-white rounded-2xl py-4 font-bold shadow-md shadow-green-200 hover:bg-green-700 transition-colors" onClick={() => setActiveView('main')}>

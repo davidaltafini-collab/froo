@@ -410,7 +410,7 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
               className="font-mono font-bold text-slate-400"
               style={{ marginTop: 12 * designScale, fontSize: 10 * designScale, lineHeight: 15 * designScale, letterSpacing: 1 * designScale }}
             >
-              CPN-2023-{coupon.id}9
+              CPN-2026-{coupon.id}9
             </Text>
           </View>
 
@@ -456,7 +456,7 @@ function CouponDetailModal({ coupon, origin, onClose }: { coupon: Offer; origin:
                 Terms &amp; Conditions
               </Text>
               <Text className="text-slate-500" style={{ fontSize: 9 * designScale, lineHeight: 16.25 * designScale }}>
-                Offer valid until Oct 24, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all FreshLeaf participating locations.
+                Offer valid until Nov 30, 2026. Limit one coupon per customer per visit. Cannot be combined with other offers or store promotions. Discount applies to regular priced items only. Excludes alcohol, tobacco, and gift cards. Valid at all froo participating locations.
               </Text>
             </View>
           </View>
@@ -532,7 +532,7 @@ export function CouponsView() {
                 letterSpacing: 1 * designScale,
               }}
             >
-              FreshRewards
+              FrooRewards
             </Text>
             <Text className="font-bold text-white" style={{ fontSize: 18 * designScale, lineHeight: 22.5 * designScale }}>
               Redeem Points
@@ -699,7 +699,7 @@ export function CouponsView() {
                   className="font-bold text-slate-400"
                   style={{ marginTop: 4 * designScale, fontSize: 10 * designScale, lineHeight: 15 * designScale }}
                 >
-                  Exp: Oct 24 • Use in-store
+                  Exp: Nov 30 • Use in-store
                 </Text>
               </View>
             </View>

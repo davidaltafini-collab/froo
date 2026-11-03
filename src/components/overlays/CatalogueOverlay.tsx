@@ -88,7 +88,7 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void, onAd
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-slate-800 text-sm truncate mb-0.5">{item.name}</h4>
                       <div className="flex items-center gap-2">
-                         <span className="text-sm font-black text-slate-900">${item.price.toFixed(2)}</span>
+                         <span className="text-sm font-black text-slate-900">{item.price.toFixed(2).replace('.', ',')} lei</span>
                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.unit}</span>
                       </div>
                     </div>

@@ -91,7 +91,7 @@ export const PARTNER_ADS = [
 
 function HeaderHandle({ color = "rgb(0,99,32)", className = "" }: { color?: string, className?: string }) {
   return (
-    <svg width="100%" height="auto" viewBox="0 0 367 90" version="1.1" xmlns="http://www.w3.org/2000/svg" className={className} style={{fillRule:'evenodd',clipRule:'evenodd',strokeLinejoin:'round',strokeMiterlimit:2}}>
+    <svg width="100%" viewBox="0 0 367 90" version="1.1" xmlns="http://www.w3.org/2000/svg" className={className} style={{fillRule:'evenodd',clipRule:'evenodd',strokeLinejoin:'round',strokeMiterlimit:2}}>
       <g transform="matrix(1,0,0,1,-23.653571,19.106469)">
         <g transform="matrix(-1,-0,0,-0.804295,419,59.416085)">
           <motion.path d="M391.822,73.873C438.622,73.519 3.41,74.655 30,73.873C48.197,73.339 158.613,0 209.5,0C267.103,0 351.203,74.181 391.822,73.873Z" animate={{ fill: color }} transition={{ duration: 0.7, ease: "easeInOut" }} />

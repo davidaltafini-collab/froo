@@ -17,7 +17,7 @@ const TIER_STICKY_HEADER_INDICES = TIERS.map((_, index) => index * 2);
 
 const REWARDS: Record<number, RewardItem[]> = {
   1500: [
-    { name: 'Fresh Bananas (1 lb)', cost: 1500, image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=400&q=80' },
+    { name: 'Fresh Bananas (1 kg)', cost: 1500, image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=400&q=80' },
     { name: 'Organic Lemon', cost: 1500, image: 'https://images.unsplash.com/photo-1550828520-4cb496926fc9?w=400&q=80' },
     { name: 'Spring Water', cost: 1500, image: 'https://images.unsplash.com/photo-1655079343782-f0fc4704753e?auto=format&fit=crop&q=80&w=400' },
     { name: 'Fresh Croissant', cost: 1500, image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=400' },

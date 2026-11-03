@@ -59,7 +59,7 @@ const MAX_TILT_DEG = 16;
 const STREAK_DAYS = [
   { day: 'Mon', checked: true, pts: '+5' },
   { day: 'Tue', checked: true, pts: '+10' },
-  { day: 'Wed', checked: true, pts: '+15', current: true },
+  { day: 'Wed', checked: false, pts: '+15', current: true },
   { day: 'Thu', checked: false, pts: '+20' },
   { day: 'Fri', checked: false, pts: '+25' },
   { day: 'Sat', checked: false, pts: '+30' },
@@ -574,7 +574,7 @@ export function DashboardView() {
                 className="relative"
                 style={{ marginTop: 4 * designScale, height: 16 * designScale }}
               >
-                  <Text className="text-xs text-slate-500 font-medium">4 Day Streak!</Text>
+                  <Text className="text-xs text-slate-500 font-medium">3 Day Streak!</Text>
                   <View
                     className="flex-row items-center bg-orange-100"
                     style={{
@@ -605,7 +605,7 @@ export function DashboardView() {
                 className="flex-row items-center flex-wrap"
                 style={{ marginTop: 4 * designScale, gap: 6 * designScale }}
               >
-                <Text className="text-xs text-slate-500 font-medium">3 Day Streak! +15 pts today</Text>
+                <Text className="text-xs text-slate-500 font-medium">2 Day Streak! +15 pts today</Text>
               </View>
             )}
           </View>
@@ -804,7 +804,7 @@ export function DashboardView() {
                     lineHeight: 15 * designScale,
                   }}
                 >
-                  Exp: Oct 24
+                  Exp: Nov 30
                 </Text>
               </View>
             </View>

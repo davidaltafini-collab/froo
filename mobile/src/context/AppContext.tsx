@@ -14,7 +14,7 @@ import { EXTRACTION_THRESHOLD } from '../data/extractionPrizes';
 const initialNotifications: AppNotification[] = [
   { id: 1, title: 'Points Expiring Soon', message: 'You have 450 points expiring in 3 days. Redeem them now!', time: '2 hours ago', icon: Flame, unread: true },
   { id: 2, title: 'New Reward Unlocked', message: 'You just unlocked the Platinum tier reward catalogue.', time: '1 day ago', icon: Crown, unread: true },
-  { id: 3, title: 'Receipt Available', message: 'Your digital receipt for Store #402 is ready.', time: '2 days ago', icon: ScanLine, unread: false },
+  { id: 3, title: 'Receipt Available', message: 'Your digital receipt for froo Giurgiului is ready.', time: '2 days ago', icon: ScanLine, unread: false },
 ];
 
 interface AppContextValue {

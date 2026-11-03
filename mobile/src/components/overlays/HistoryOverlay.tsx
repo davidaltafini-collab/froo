@@ -3,7 +3,7 @@ import { Modal, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-
 import { Text, TextInput } from '../Text';
 import Animated from 'react-native-reanimated';
 import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ChevronRight, Receipt, Search, X } from 'lucide-react-native';
+import { ChevronRight, ReceiptText, Search, X } from 'lucide-react-native';
 import { TRANSACTIONS } from '../../data/mockData';
 import { AppPressable } from '../AppPressable';
 import { useSwipeDownSurface } from '../useSwipeDownSurface';
@@ -62,7 +62,7 @@ export function HistoryOverlay({ onClose }: { onClose: () => void }) {
         {filteredTransactions.map((tx) => (
           <AppPressable key={tx.id} className="w-full bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex-row items-center gap-4">
             <View className="w-12 h-12 bg-slate-50 rounded-xl items-center justify-center">
-              <Receipt size={24} color="#94a3b8" />
+              <ReceiptText size={24} color="#94a3b8" />
             </View>
             <View className="flex-1">
               <Text className="font-bold text-slate-800" numberOfLines={1}>{tx.store}</Text>

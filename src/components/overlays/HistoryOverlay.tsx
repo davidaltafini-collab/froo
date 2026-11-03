@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X, Receipt, Search, ChevronRight } from 'lucide-react';
+import { X, ReceiptText, Search, ChevronRight } from 'lucide-react';
 import { TRANSACTIONS } from '../../data/mockData';
 import { useVerticalDismissDrag } from '../../hooks/useVerticalDismissDrag';
 
@@ -63,7 +63,7 @@ export function HistoryOverlay({ onClose }: { onClose: () => void }) {
             className="w-full bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4 text-left hover:border-green-200 hover:shadow-md transition-all"
           >
             <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0">
-              <Receipt className="w-6 h-6 text-slate-400" />
+              <ReceiptText className="w-6 h-6 text-slate-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="font-bold text-slate-800 truncate">{tx.store}</h4>

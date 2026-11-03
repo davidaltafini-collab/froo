@@ -178,7 +178,7 @@ export function CatalogueOverlay({ onClose, onAdd }: { onClose: () => void; onAd
                         </Text>
                         <View className="flex-row items-center" style={{ gap: 8 * s }}>
                           <Text className="font-black text-slate-900" style={{ fontSize: 14 * s, lineHeight: 20 * s }}>
-                            ${item.price.toFixed(2)}
+                            {item.price.toFixed(2).replace('.', ',')} lei
                           </Text>
                           <Text
                             className="font-bold text-slate-400 uppercase"

@@ -397,7 +397,7 @@ export function PersonalGameOverlay({ onClose, onShowRewards }: { onClose: () =>
             <View className="gap-3">
               {[
                 { rank: 1, name: 'Mike T.', score: '6,800', isMe: false },
-                { rank: 2, name: 'Sarah J.', score: '5,920', isMe: true },
+                { rank: 2, name: 'David N.', score: '5,920', isMe: true },
                 { rank: 3, name: 'Alex W.', score: '5,100', isMe: false },
                 { rank: 4, name: 'Jess K.', score: '4,850', isMe: false },
               ].map((user, i) => (

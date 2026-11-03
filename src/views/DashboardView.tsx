@@ -270,13 +270,13 @@ export function DashboardView() {
              <div className="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1.5">
                {claimed ? (
                  <>
-                   4 Day Streak!
+                   3 Day Streak!
                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded text-[9px] uppercase font-bold tracking-widest">
                      <Crown className="w-2.5 h-2.5" /> Bonus Unlocked
                    </span>
                  </>
                ) : (
-                 '3 Day Streak! +15 pts today'
+                 '2 Day Streak! +15 pts today'
                )}
              </div>
           </div>
@@ -286,7 +286,7 @@ export function DashboardView() {
             {[
               { day: 'Mon', checked: true, pts: '+5' },
               { day: 'Tue', checked: true, pts: '+10' },
-              { day: 'Wed', checked: true, pts: '+15', current: true },
+              { day: 'Wed', checked: false, pts: '+15', current: true },
               { day: 'Thu', checked: false, pts: '+20' },
               { day: 'Fri', checked: false, pts: '+25' },
               { day: 'Sat', checked: false, pts: '+30' },
@@ -372,7 +372,7 @@ export function DashboardView() {
               <div>
                 <p className="font-bold text-slate-800 uppercase text-[10px] tracking-wide">{offer.title}</p>
                 <p className="text-xs text-slate-600 mt-1 leading-snug">{offer.desc}</p>
-                <p className={`text-[10px] mt-2 font-bold ${i === 0 ? 'text-green-700' : 'text-slate-400'}`}>Exp: Oct 24</p>
+                <p className={`text-[10px] mt-2 font-bold ${i === 0 ? 'text-green-700' : 'text-slate-400'}`}>Exp: Nov 30</p>
               </div>
             </motion.div>
           ))}
