@@ -1,20 +1,41 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Froo Rewards
 
-# Run and deploy your AI Studio app
+Aplicația de loialitate Froo: puncte, oferte, listă de cumpărături, magazine și mini-jocuri.
 
-This contains everything you need to run your app locally.
+```
+mobile/   aplicația iOS + Android (Expo / React Native)  ← asta se prezintă
+src/      versiunea web (Vite + React), referința de design
+scripts/  build pentru jocurile incluse în aplicația mobilă
+docs/     ghiduri de arhitectură și migrare
+```
 
-View your app in AI Studio: https://ai.studio/apps/5bad6a72-a617-48bd-ae9d-5ec3336b89ce
+## Aplicația mobilă
 
-## Run Locally
+```sh
+cd mobile
+npm install
+```
 
-**Prerequisites:**  Node.js
+**Instalată pe telefon, merge fără laptop (Release):**
 
+```sh
+# iPhone conectat prin cablu (sau pe aceeași rețea, asociat în Xcode)
+npx expo run:ios --configuration Release --device
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# Android: APK instalabil pe orice telefon
+cd android && ./gradlew assembleRelease
+# -> android/app/build/outputs/apk/release/app-release.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
+```
+
+**Dezvoltare cu reîncărcare live:** `npx expo run:ios` / `npx expo run:android`.
+
+Harta din „Magazine” folosește Apple Maps pe iOS. Pe Android folosește Google Maps dacă
+`GOOGLE_MAPS_API_KEY` e setat la build (vezi `mobile/.env.example`), altfel OpenStreetMap.
+
+## Versiunea web
+
+```sh
+npm install
+npm run dev        # http://localhost:3000
+```

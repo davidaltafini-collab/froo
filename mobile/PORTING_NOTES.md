@@ -2,7 +2,7 @@
 
 The detailed implementation matrix and current measurements are in
 [`../visual-parity/PARITY_STATUS.md`](../visual-parity/PARITY_STATUS.md). The conversion method is
-documented in [`../PIXEL_PERFECT_REACT_NATIVE_PLAYBOOK.md`](../PIXEL_PERFECT_REACT_NATIVE_PLAYBOOK.md).
+documented in [`../docs/PIXEL_PERFECT_REACT_NATIVE_PLAYBOOK.md`](../docs/PIXEL_PERFECT_REACT_NATIVE_PLAYBOOK.md).
 
 ## Architecture
 

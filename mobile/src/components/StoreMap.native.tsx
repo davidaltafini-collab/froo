@@ -1,8 +1,26 @@
 import React from 'react';
+import { Platform } from 'react-native';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import MapView, { Marker, type Region } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 import type { Store } from '../types';
 
 type UserLocation = { lat: number; lng: number };
+
+/**
+ * Google Maps on Android aborts the whole app when no API key is in the manifest. Expo Go ships
+ * its own key; standalone builds only have one when GOOGLE_MAPS_API_KEY was set at build time.
+ */
+const androidMapsKeyMissing =
+  Platform.OS === 'android' &&
+  Constants.executionEnvironment !== ExecutionEnvironment.StoreClient &&
+  !Constants.expoConfig?.android?.config?.googleMaps?.apiKey;
+
+function openStreetMapUrl(store: Store) {
+  const d = 0.012;
+  const bbox = [store.lng - d, store.lat - d, store.lng + d, store.lat + d].join(',');
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${store.lat},${store.lng}`;
+}
 
 interface StoreMapProps {
   src: string;
@@ -34,6 +52,17 @@ export function StoreMap({ title, selectedStore, userLocation }: StoreMapProps) 
   }, [selectedStore]);
 
   if (!selectedStore) return null;
+
+  if (androidMapsKeyMissing) {
+    return (
+      <WebView
+        accessibilityLabel={title}
+        source={{ uri: openStreetMapUrl(selectedStore) }}
+        style={{ flex: 1, backgroundColor: '#f1f5f9' }}
+        scrollEnabled={false}
+      />
+    );
+  }
 
   return (
     <MapView
